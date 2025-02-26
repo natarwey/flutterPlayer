@@ -16,6 +16,12 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         title: Container(
           decoration: BoxDecoration(
             color: Colors.white,
@@ -79,13 +85,13 @@ class _HomePageState extends State<HomePage> {
       // Панель проигрывания трека внизу экрана
       bottomSheet: Container(
         height: 80,
-        color: const Color.fromARGB(255, 207, 222, 230), // Светлый цвет для панели проигрывания
+        color:  Colors.grey[300],
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Column(
           children: [
             LinearProgressIndicator(
               value: playbackProgress,
-              backgroundColor: const Color.fromARGB(255, 67, 103, 121),
+              backgroundColor: Colors.grey[300],
               valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
             ),
             const SizedBox(height: 8),
@@ -131,9 +137,47 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
+
+      // Нижняя панель с кнопками "Назад", "Домой" и "Вперед"
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.white,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.pop(context); // Возврат на предыдущую страницу
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.home),
+              onPressed: () {
+                // Переход на главную страницу
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomePage()),
+                  (Route<dynamic> route) => false,
+                );
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.arrow_forward),
+              onPressed: () {
+                // Переход на следующую страницу
+                // Замените NextPage() на вашу следующую страницу
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomePage()),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
-
+  
   // Метод для создания прокручиваемых строк с изображениями
   Widget _buildHorizontalScrollableImages(int numberOfRows, {bool isCircle = false, bool isAlbums = false}) {
     return Column(
