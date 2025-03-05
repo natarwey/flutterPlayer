@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/auth.dart';
 import 'package:flutter_application_1/home.dart';
+import 'package:flutter_application_1/landing.dart';
 import 'package:flutter_application_1/recovery.dart';
 import 'package:flutter_application_1/reg.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -50,7 +51,8 @@ class AppTheme extends StatelessWidget {
       ),
       initialRoute: "/",
       routes: {
-        '/': (context) => AuthPage(),
+        '/': (context) => LandingPage(),
+        '/auth': (context) => AuthPage(),
         '/reg': (context) => RegPage(),
         '/recovery':(context) => RecoveryPage(),
         '/home':(context) => HomePage(),

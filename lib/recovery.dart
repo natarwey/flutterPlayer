@@ -1,11 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/database/auth.dart';
 
 class RecoveryPage extends StatelessWidget {
   const RecoveryPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    TextEditingController emailController = TextEditingController();
+    AuthService authService = AuthService();
     return Scaffold(
       appBar: AppBar(
         title: Text("Восстановление пароля"),
@@ -33,7 +36,13 @@ class RecoveryPage extends StatelessWidget {
                       color: Colors.white,
                       ),
                     suffixIcon: IconButton(
-                    onPressed: () {},
+                    onPressed: ()async {
+                      if (emailController.text.isEmpty) {
+                        print("Поле пустое");
+                      } else {
+                        await authService.recoveryPassword(emailController.text);
+                      }
+                    },
                     icon: Icon(
                       Icons.send,
                       color: Colors.white,

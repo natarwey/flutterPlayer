@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/database/auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -8,6 +10,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  AuthService authService = AuthService();
   final TextEditingController _searchController = TextEditingController();
   bool isPlaying = false; // Состояние воспроизведения (играет/на паузе)
   double playbackProgress = 0.5; // Прогресс воспроизведения (от 0.0 до 1.0)
@@ -16,35 +19,45 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-          child: TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: 'Поиск...',
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(vertical: 16.0),
-              prefixIcon: Icon(Icons.search, color: Colors.grey),
-            ),
-          ),
-        ),
+      automaticallyImplyLeading: false,
+        title: Text("Home"),
         actions: [
           IconButton(
-            icon: Icon(Icons.account_circle),
-            onPressed: () {
-              // Навигация на страницу личного аккаунта
+            onPressed: () async {
+              await authService.logOut();
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setBool('isLoggedIn', false);
+              Navigator.popAndPushNamed(context, '/');
             },
-          ),
-        ],
+            icon: Icon(
+              Icons.logout,
+              color: Colors.white,
+            ),
+            )
+        ]
+        // title: Container(
+        //   decoration: BoxDecoration(
+        //     color: Colors.white,
+        //     borderRadius: BorderRadius.circular(20.0),
+        //   ),
+        //   child: TextField(
+        //     controller: _searchController,
+        //     decoration: InputDecoration(
+        //       hintText: 'Поиск...',
+        //       border: InputBorder.none,
+        //       contentPadding: EdgeInsets.symmetric(vertical: 16.0),
+        //       prefixIcon: Icon(Icons.search, color: Colors.grey),
+        //     ),
+        //   ),
+        // ),
+        // actions: [
+        //   IconButton(
+        //     icon: Icon(Icons.account_circle),
+        //     onPressed: () {
+        //       // Навигация на страницу личного аккаунта
+        //     },
+        //   ),
+        // ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -112,7 +125,7 @@ class _HomePageState extends State<HomePage> {
                 IconButton(
                   icon: Icon(Icons.skip_previous, color: Colors.grey[700]),
                   onPressed: () {
-                    // Действие при нажатии на кнопку "назад"
+                    // "назад"
                   },
                 ),
                 IconButton(
@@ -122,14 +135,14 @@ class _HomePageState extends State<HomePage> {
                   ),
                   onPressed: () {
                     setState(() {
-                      isPlaying = !isPlaying; // Переключение состояния воспроизведения
+                      isPlaying = !isPlaying;
                     });
                   },
                 ),
                 IconButton(
                   icon: Icon(Icons.skip_next, color: Colors.grey[700]),
                   onPressed: () {
-                    // Действие при нажатии на кнопку "вперед"
+                    // "вперед"
                   },
                 ),
               ],
@@ -165,7 +178,6 @@ class _HomePageState extends State<HomePage> {
               icon: Icon(Icons.arrow_forward),
               onPressed: () {
                 // Переход на следующую страницу
-                // Замените NextPage() на вашу следующую страницу
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => HomePage()),
@@ -183,29 +195,29 @@ class _HomePageState extends State<HomePage> {
     return Column(
       children: List.generate(numberOfRows, (index) {
         return Container(
-          height: 100, // Высота строки
-          margin: EdgeInsets.only(bottom: 10), // Отступ между строками
+          height: 100,
+          margin: EdgeInsets.only(bottom: 10),
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: List.generate(10, (index) {
               return Container(
-                width: 100, // Ширина элемента
-                height: 100, // Высота элемента
-                margin: EdgeInsets.symmetric(horizontal: 8), // Отступ между элементами
+                width: 100,
+                height: 100,
+                margin: EdgeInsets.symmetric(horizontal: 8),
                 decoration: BoxDecoration(
                   color: Colors.grey[300],
                   borderRadius: isCircle
-                      ? BorderRadius.circular(100) // Круг для исполнителей
-                      : BorderRadius.circular(30), // Закругленные углы для плейлистов и альбомов
+                      ? BorderRadius.circular(100)
+                      : BorderRadius.circular(30),
                 ),
                 child: Center(
                   child: Text(
                     isCircle
-                      ? 'Исполнитель ${index + 1}' // Текст для кругов (исполнители)
+                      ? 'Исполнитель ${index + 1}'
                       : isAlbums
-                          ? 'Альбом ${index + 1}' // Текст для альбомов
-                          : 'Плейлист ${index + 1}', // Текст для плейлистов
-                    style: TextStyle(fontSize: 13), // Уменьшаем размер текста
+                          ? 'Альбом ${index + 1}'
+                          : 'Плейлист ${index + 1}',
+                    style: TextStyle(fontSize: 13),
                   ),
                 ),
               );
