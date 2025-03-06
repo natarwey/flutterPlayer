@@ -24,7 +24,7 @@ class _RegPageState extends State<RegPage> {
           children: [
             Image.asset('images/logo.png'),
             Text(
-              "Вход",
+              "Регистрация",
               textScaler: TextScaler.linear(3),
               style: TextStyle(color: Colors.white),
             ),
@@ -99,16 +99,6 @@ class _RegPageState extends State<RegPage> {
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.6,
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.popAndPushNamed(context, '/home');
-                },
-                child: Text("Войти"),
-              ),
-            ),
-            SizedBox(height: MediaQuery.of(context).size.height * 0.015),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.6,
-              child: OutlinedButton(
                 onPressed: () async {
                   if (emailController.text.isEmpty ||
                       passController.text.isEmpty ||
@@ -121,7 +111,7 @@ class _RegPageState extends State<RegPage> {
                       if (user != null) {
                         final prefs = await SharedPreferences.getInstance();
                         await prefs.setBool('isLoggedIn', true);
-                        Navigator.popAndPushNamed(context, '/');
+                        Navigator.popAndPushNamed(context, '/home');
                       } else {
                         print("Пользователь не создан!");
                       }
@@ -129,19 +119,28 @@ class _RegPageState extends State<RegPage> {
                       print("Пароли не совпадают!");
                     }
                   }
-                  Navigator.popAndPushNamed(context, '/reg');
                 },
                 child: Text("Создать аккаунт"),
               ),
             ),
+            // SizedBox(height: MediaQuery.of(context).size.height * 0.015),
+            // SizedBox(
+            //   width: MediaQuery.of(context).size.width * 0.6,
+            //   child: OutlinedButton(
+            //     onPressed: () {
+            //       Navigator.popAndPushNamed(context, '/home');
+            //     },
+            //     child: Text("Аккаунт уже есть"),
+            //   ),
+            // ),
             SizedBox(height: MediaQuery.of(context).size.height * 0.015),
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.6,
-              child: ElevatedButton(
+              child: OutlinedButton(
                 onPressed: () {
-                  Navigator.popAndPushNamed(context, '/');
+                  Navigator.popAndPushNamed(context, '/auth');
                 },
-                child: Text("Назад"),
+                child: Text("Аккаунт уже есть"),
               ),
             ),
           ],

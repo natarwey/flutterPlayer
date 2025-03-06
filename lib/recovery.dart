@@ -29,6 +29,7 @@ class RecoveryPage extends StatelessWidget {
             SizedBox(
                 width: MediaQuery.of(context).size.width * 0.85,
                 child: TextField(
+                  controller: emailController,
                   cursorColor: Colors.white,
                   decoration: InputDecoration(
                     prefixIcon: Icon(
@@ -41,6 +42,7 @@ class RecoveryPage extends StatelessWidget {
                         print("Поле пустое");
                       } else {
                         await authService.recoveryPassword(emailController.text);
+                        emailController.clear();
                       }
                     },
                     icon: Icon(

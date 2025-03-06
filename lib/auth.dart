@@ -25,6 +25,7 @@ class _AuthPageState extends State<AuthPage> {
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.85,
               child: TextField(
+                controller: emailController,
                 cursorColor: Colors.white,
                 decoration: InputDecoration(
                   prefixIcon: Icon(Icons.email, color: Colors.white),
@@ -45,6 +46,7 @@ class _AuthPageState extends State<AuthPage> {
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.85,
               child: TextField(
+                controller: passController,
                 cursorColor: Colors.white,
                 decoration: InputDecoration(
                   prefixIcon: Icon(Icons.password, color: Colors.white),
@@ -86,12 +88,11 @@ class _AuthPageState extends State<AuthPage> {
                     if (user != null) {
                       final prefs = await SharedPreferences.getInstance();
                       await prefs.setBool('isLoggedIn', true);
-                      Navigator.popAndPushNamed(context, '/');
+                      Navigator.popAndPushNamed(context, '/home');
                     } else {
                       print("Пользователь не найден!");
                     }
                   }
-                  Navigator.popAndPushNamed(context, '/home');
                 },
                 child: Text("Войти"),
               ),
