@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/database/auth.dart';
+import 'package:flutter_application_1/players.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
@@ -59,97 +61,109 @@ class _HomePageState extends State<HomePage> {
         //   ),
         // ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Раздел "Ваши плейлисты"
-              Text(
-                'Ваши плейлисты',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10),
-              _buildHorizontalScrollableImages(2, isCircle: false),
-              SizedBox(height: 20),
 
-              // Раздел "Популярные исполнители"
-              Text(
-                'Популярные исполнители',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10),
-              _buildHorizontalScrollableImages(1, isCircle: true),
-              SizedBox(height: 20),
-
-              // Раздел "Альбомы"
-              Text(
-                'Альбомы',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10),
-              _buildHorizontalScrollableImages(1, isAlbums: true),
-            ],
-          ),
+      bottomNavigationBar: Padding(
+        adding: const EdgeInsests.all(10.0),
+        hild: ListTile(
+          leading: Icon(Icons.music_note),
+          title: Text('----------------------'),
+          subtitle: Text(''),
+          trailing: IconButton(onPressed: () {
+            Navigator.push(context, CupertinoPageRoute(builder: (context) => PlayersPage(),
+          }, icon: Icon(Icons.play_arrow)),
         ),
-      ),
+      )
+      // body: SingleChildScrollView(
+      //   child: Padding(
+      //     padding: const EdgeInsets.all(16.0),
+      //     child: Column(
+      //       crossAxisAlignment: CrossAxisAlignment.start,
+      //       children: [
+      //         // Раздел "Ваши плейлисты"
+      //         Text(
+      //           'Ваши плейлисты',
+      //           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      //         ),
+      //         SizedBox(height: 10),
+      //         _buildHorizontalScrollableImages(2, isCircle: false),
+      //         SizedBox(height: 20),
+
+      //         // Раздел "Популярные исполнители"
+      //         Text(
+      //           'Популярные исполнители',
+      //           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      //         ),
+      //         SizedBox(height: 10),
+      //         _buildHorizontalScrollableImages(1, isCircle: true),
+      //         SizedBox(height: 20),
+
+      //         // Раздел "Альбомы"
+      //         Text(
+      //           'Альбомы',
+      //           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      //         ),
+      //         SizedBox(height: 10),
+      //         _buildHorizontalScrollableImages(1, isAlbums: true),
+      //       ],
+      //     ),
+      //   ),
+      // ),
 
       // Панель проигрывания трека внизу экрана
-      bottomSheet: Container(
-        height: 80,
-        color:  Colors.grey[300],
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Column(
-          children: [
-            LinearProgressIndicator(
-              value: playbackProgress,
-              backgroundColor: Colors.grey[300],
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(Icons.music_note, color: Colors.grey[700]),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Название трека', style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text('Исполнитель', style: TextStyle(color: Colors.grey[700])),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.skip_previous, color: Colors.grey[700]),
-                  onPressed: () {
-                    // "назад"
-                  },
-                ),
-                IconButton(
-                  icon: Icon(
-                    isPlaying ? Icons.pause : Icons.play_arrow,
-                    color: Colors.grey[700],
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      isPlaying = !isPlaying;
-                    });
-                  },
-                ),
-                IconButton(
-                  icon: Icon(Icons.skip_next, color: Colors.grey[700]),
-                  onPressed: () {
-                    // "вперед"
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+      // bottomSheet: Container(
+      //   height: 80,
+      //   color:  Colors.grey[300],
+      //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      //   child: Column(
+      //     children: [
+      //       LinearProgressIndicator(
+      //         value: playbackProgress,
+      //         backgroundColor: Colors.grey[300],
+      //         valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+      //       ),
+      //       const SizedBox(height: 8),
+      //       Row(
+      //         children: [
+      //           Icon(Icons.music_note, color: Colors.grey[700]),
+      //           const SizedBox(width: 10),
+      //           Expanded(
+      //             child: Column(
+      //               mainAxisAlignment: MainAxisAlignment.center,
+      //               crossAxisAlignment: CrossAxisAlignment.start,
+      //               children: [
+      //                 Text('Название трека', style: TextStyle(fontWeight: FontWeight.bold)),
+      //                 Text('Исполнитель', style: TextStyle(color: Colors.grey[700])),
+      //               ],
+      //             ),
+      //           ),
+      //           IconButton(
+      //             icon: Icon(Icons.skip_previous, color: Colors.grey[700]),
+      //             onPressed: () {
+      //               // "назад"
+      //             },
+      //           ),
+      //           IconButton(
+      //             icon: Icon(
+      //               isPlaying ? Icons.pause : Icons.play_arrow,
+      //               color: Colors.grey[700],
+      //             ),
+      //             onPressed: () {
+      //               setState(() {
+      //                 isPlaying = !isPlaying;
+      //               });
+      //             },
+      //           ),
+      //           IconButton(
+      //             icon: Icon(Icons.skip_next, color: Colors.grey[700]),
+      //             onPressed: () {
+      //               // "вперед"
+      //             },
+      //           ),
+      //         ],
+      //       ),
+      //     ],
+      //   ),
+      // ),
 
       // Нижняя панель с кнопками "Назад", "Домой" и "Вперед"
       bottomNavigationBar: BottomAppBar(

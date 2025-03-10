@@ -29,7 +29,7 @@ class _AuthPageState extends State<AuthPage> {
                 cursorColor: Colors.white,
                 decoration: InputDecoration(
                   prefixIcon: Icon(Icons.email, color: Colors.white),
-                  labelText: 'Email',
+                  labelText: 'Почта',
                   labelStyle: TextStyle(color: Colors.white),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(20),
