@@ -63,13 +63,13 @@ class _HomePageState extends State<HomePage> {
       ),
 
       bottomNavigationBar: Padding(
-        adding: const EdgeInsests.all(10.0),
-        hild: ListTile(
+        padding: const EdgeInsets.all(10.0),
+        child: ListTile(
           leading: Icon(Icons.music_note),
           title: Text('----------------------'),
-          subtitle: Text(''),
+          subtitle: Text('Название'),
           trailing: IconButton(onPressed: () {
-            Navigator.push(context, CupertinoPageRoute(builder: (context) => PlayersPage(),
+            Navigator.push(context, CupertinoPageRoute(builder: (context) => PlayersPage()));
           }, icon: Icon(Icons.play_arrow)),
         ),
       )
@@ -166,79 +166,79 @@ class _HomePageState extends State<HomePage> {
       // ),
 
       // Нижняя панель с кнопками "Назад", "Домой" и "Вперед"
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.white,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.pop(context); // Возврат на предыдущую страницу
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.home),
-              onPressed: () {
-                // Переход на главную страницу
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => HomePage()),
-                  (Route<dynamic> route) => false,
-                );
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.arrow_forward),
-              onPressed: () {
-                // Переход на следующую страницу
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => HomePage()),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
+      // bottomNavigationBar: BottomAppBar(
+      //   color: Colors.white,
+      //   child: Row(
+      //     mainAxisAlignment: MainAxisAlignment.spaceAround,
+      //     children: [
+      //       IconButton(
+      //         icon: Icon(Icons.arrow_back),
+      //         onPressed: () {
+      //           Navigator.pop(context); // Возврат на предыдущую страницу
+      //         },
+      //       ),
+      //       IconButton(
+      //         icon: Icon(Icons.home),
+      //         onPressed: () {
+      //           // Переход на главную страницу
+      //           Navigator.pushAndRemoveUntil(
+      //             context,
+      //             MaterialPageRoute(builder: (context) => HomePage()),
+      //             (Route<dynamic> route) => false,
+      //           );
+      //         },
+      //       ),
+      //       IconButton(
+      //         icon: Icon(Icons.arrow_forward),
+      //         onPressed: () {
+      //           // Переход на следующую страницу
+      //           Navigator.push(
+      //             context,
+      //             MaterialPageRoute(builder: (context) => HomePage()),
+      //           );
+      //         },
+      //       ),
+      //     ],
+      //   ),
+      // ),
     );
   }
   
   // Метод для создания прокручиваемых строк с изображениями
-  Widget _buildHorizontalScrollableImages(int numberOfRows, {bool isCircle = false, bool isAlbums = false}) {
-    return Column(
-      children: List.generate(numberOfRows, (index) {
-        return Container(
-          height: 100,
-          margin: EdgeInsets.only(bottom: 10),
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            children: List.generate(10, (index) {
-              return Container(
-                width: 100,
-                height: 100,
-                margin: EdgeInsets.symmetric(horizontal: 8),
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: isCircle
-                      ? BorderRadius.circular(100)
-                      : BorderRadius.circular(30),
-                ),
-                child: Center(
-                  child: Text(
-                    isCircle
-                      ? 'Исполнитель ${index + 1}'
-                      : isAlbums
-                          ? 'Альбом ${index + 1}'
-                          : 'Плейлист ${index + 1}',
-                    style: TextStyle(fontSize: 13),
-                  ),
-                ),
-              );
-            }),
-          ),
-        );
-      }),
-    );
-  }
+  // Widget _buildHorizontalScrollableImages(int numberOfRows, {bool isCircle = false, bool isAlbums = false}) {
+  //   return Column(
+  //     children: List.generate(numberOfRows, (index) {
+  //       return Container(
+  //         height: 100,
+  //         margin: EdgeInsets.only(bottom: 10),
+  //         child: ListView(
+  //           scrollDirection: Axis.horizontal,
+  //           children: List.generate(10, (index) {
+  //             return Container(
+  //               width: 100,
+  //               height: 100,
+  //               margin: EdgeInsets.symmetric(horizontal: 8),
+  //               decoration: BoxDecoration(
+  //                 color: Colors.grey[300],
+  //                 borderRadius: isCircle
+  //                     ? BorderRadius.circular(100)
+  //                     : BorderRadius.circular(30),
+  //               ),
+  //               child: Center(
+  //                 child: Text(
+  //                   isCircle
+  //                     ? 'Исполнитель ${index + 1}'
+  //                     : isAlbums
+  //                         ? 'Альбом ${index + 1}'
+  //                         : 'Плейлист ${index + 1}',
+  //                   style: TextStyle(fontSize: 13),
+  //                 ),
+  //               ),
+  //             );
+  //           }),
+  //         ),
+  //       );
+  //     }),
+  //   );
+  // }
 }

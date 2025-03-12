@@ -81,7 +81,15 @@ class _AuthPageState extends State<AuthPage> {
                 onPressed: () async {
                   if (emailController.text.isEmpty ||
                       passController.text.isEmpty) {
-                    print("Поля пустые!");
+                    ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "Поля пустые!",
+                              style: TextStyle(color: Colors.black),
+                            ),
+                            backgroundColor: Colors.white
+                          ),
+                        );
                   } else {
                     var user = await authService.signIn(
                       emailController.text, passController.text);
@@ -90,7 +98,15 @@ class _AuthPageState extends State<AuthPage> {
                       await prefs.setBool('isLoggedIn', true);
                       Navigator.popAndPushNamed(context, '/home');
                     } else {
-                      print("Пользователь не найден!");
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "Пользователь не найден",
+                              style: TextStyle(color: Colors.black),
+                            ),
+                            backgroundColor: Colors.white
+                          ),
+                        );
                     }
                   }
                 },

@@ -128,7 +128,15 @@ class _RegPageState extends State<RegPage> {
                   if (emailController.text.isEmpty ||
                       passController.text.isEmpty ||
                       repeatController.text.isEmpty) {
-                    print("Поля пустые");
+                    ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "Поля пустые",
+                              style: TextStyle(color: Colors.black),
+                            ),
+                            backgroundColor: Colors.white
+                          ),
+                        );
                   } else {
                     if (passController.text == repeatController.text) {
                       var user = await authService.signUp(
@@ -138,12 +146,37 @@ class _RegPageState extends State<RegPage> {
                             emailController.text, passController.text);
                         final prefs = await SharedPreferences.getInstance();
                         await prefs.setBool('isLoggedIn', true);
-                        Navigator.popAndPushNamed(context, '/home');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "Зарегистрирован: ${user.email!}",
+                              style: TextStyle(color: Colors.black),
+                            ),
+                            backgroundColor: Colors.white
+                          ),
+                        );
+                        Navigator.popAndPushNamed(context, '/');
                       } else {
-                        print("Пользователь не создан!");
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "Пользователь не создан",
+                              style: TextStyle(color: Colors.black),
+                            ),
+                            backgroundColor: Colors.white
+                          ),
+                        );
                       }
                     } else {
-                      print("Пароли не совпадают!");
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "Пароли не совпадают",
+                              style: TextStyle(color: Colors.black),
+                            ),
+                            backgroundColor: Colors.white
+                          ),
+                        );
                     }
                   }
                 },
