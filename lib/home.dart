@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/database/auth.dart';
-import 'package:flutter_application_1/players.dart';
+import 'package:flutter_application_1/music/player.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
@@ -14,8 +14,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   AuthService authService = AuthService();
   final TextEditingController _searchController = TextEditingController();
-  bool isPlaying = false; // Состояние воспроизведения (играет/на паузе)
-  double playbackProgress = 0.5; // Прогресс воспроизведения (от 0.0 до 1.0)
 
   @override
   Widget build(BuildContext context) {
@@ -37,29 +35,6 @@ class _HomePageState extends State<HomePage> {
             ),
             )
         ]
-        // title: Container(
-        //   decoration: BoxDecoration(
-        //     color: Colors.white,
-        //     borderRadius: BorderRadius.circular(20.0),
-        //   ),
-        //   child: TextField(
-        //     controller: _searchController,
-        //     decoration: InputDecoration(
-        //       hintText: 'Поиск...',
-        //       border: InputBorder.none,
-        //       contentPadding: EdgeInsets.symmetric(vertical: 16.0),
-        //       prefixIcon: Icon(Icons.search, color: Colors.grey),
-        //     ),
-        //   ),
-        // ),
-        // actions: [
-        //   IconButton(
-        //     icon: Icon(Icons.account_circle),
-        //     onPressed: () {
-        //       // Навигация на страницу личного аккаунта
-        //     },
-        //   ),
-        // ],
       ),
 
       bottomNavigationBar: Padding(
@@ -69,7 +44,16 @@ class _HomePageState extends State<HomePage> {
           title: Text('----------------------'),
           subtitle: Text('Название'),
           trailing: IconButton(onPressed: () {
-            Navigator.push(context, CupertinoPageRoute(builder: (context) => PlayersPage()));
+            Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (context) => PlayerPage(
+                  nameSound: 'Я делаю шаг',
+                  author: 'The Hatters',
+                  urlMusic: 'https://qklzkuvjpyvdvzzbiltm.supabase.co/storage/v1/object/public/storages//YandexPackLoader.exe',
+                  urlPhoto: 'https://qklzkuvjpyvdvzzbiltm.supabase.co/storage/v1/object/public/storages//photo1.webp',
+                )
+            ));
           }, icon: Icon(Icons.play_arrow)),
         ),
       )
@@ -106,62 +90,6 @@ class _HomePageState extends State<HomePage> {
       //         _buildHorizontalScrollableImages(1, isAlbums: true),
       //       ],
       //     ),
-      //   ),
-      // ),
-
-      // Панель проигрывания трека внизу экрана
-      // bottomSheet: Container(
-      //   height: 80,
-      //   color:  Colors.grey[300],
-      //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      //   child: Column(
-      //     children: [
-      //       LinearProgressIndicator(
-      //         value: playbackProgress,
-      //         backgroundColor: Colors.grey[300],
-      //         valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-      //       ),
-      //       const SizedBox(height: 8),
-      //       Row(
-      //         children: [
-      //           Icon(Icons.music_note, color: Colors.grey[700]),
-      //           const SizedBox(width: 10),
-      //           Expanded(
-      //             child: Column(
-      //               mainAxisAlignment: MainAxisAlignment.center,
-      //               crossAxisAlignment: CrossAxisAlignment.start,
-      //               children: [
-      //                 Text('Название трека', style: TextStyle(fontWeight: FontWeight.bold)),
-      //                 Text('Исполнитель', style: TextStyle(color: Colors.grey[700])),
-      //               ],
-      //             ),
-      //           ),
-      //           IconButton(
-      //             icon: Icon(Icons.skip_previous, color: Colors.grey[700]),
-      //             onPressed: () {
-      //               // "назад"
-      //             },
-      //           ),
-      //           IconButton(
-      //             icon: Icon(
-      //               isPlaying ? Icons.pause : Icons.play_arrow,
-      //               color: Colors.grey[700],
-      //             ),
-      //             onPressed: () {
-      //               setState(() {
-      //                 isPlaying = !isPlaying;
-      //               });
-      //             },
-      //           ),
-      //           IconButton(
-      //             icon: Icon(Icons.skip_next, color: Colors.grey[700]),
-      //             onPressed: () {
-      //               // "вперед"
-      //             },
-      //           ),
-      //         ],
-      //       ),
-      //     ],
       //   ),
       // ),
 
