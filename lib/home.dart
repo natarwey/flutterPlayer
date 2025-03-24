@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/database/auth.dart';
+import 'package:flutter_application_1/drawer.dart';
 import 'package:flutter_application_1/main.dart';
 import 'package:flutter_application_1/music/player.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,7 +16,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   AuthService authService = AuthService();
-  //final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -25,21 +26,21 @@ class _HomePageState extends State<HomePage> {
         appBar: AppBar(
         automaticallyImplyLeading: false,
           title: Text("Home"),
-          leading: IconButton(
-            icon: Icon(Icons.person, color: Colors.white),
-            onPressed: () {
-              Navigator.push(
-                context,
-                CupertinoPageRoute(
-                  builder: (context) => ProfilePage(
-                    userName: 'Рената',
-                    userEmail: 'natarwey.basharova@yandex.ru',
-                    userPhotoUrl: 'https://qklzkuvjpyvdvzzbiltm.supabase.co/storage/v1/object/public/storages//profil.webp',
-                  ),
-                ),
-              );
-            },
-          ),
+          //leading: IconButton(
+            // icon: Icon(Icons.person, color: Colors.white),
+            // onPressed: () {
+            //   Navigator.push(
+            //     context,
+            //     CupertinoPageRoute(
+            //       builder: (context) => ProfilePage(
+            //         userName: 'Рената',
+            //         userEmail: 'natarwey.basharova@yandex.ru',
+            //         userPhotoUrl: 'https://qklzkuvjpyvdvzzbiltm.supabase.co/storage/v1/object/public/storages//profil.webp',
+            //       ),
+            //     ),
+            //   );
+            // },
+          //),
           actions: [
             IconButton(
               onPressed: () async {
@@ -60,7 +61,7 @@ class _HomePageState extends State<HomePage> {
           padding: const EdgeInsets.all(10.0),
           child: ListTile(
             leading: Icon(Icons.music_note),
-            title: Text('----------------------'),
+            title: Text('----------------------------------------------------------------'),
             subtitle: Text('Название'),
             trailing: IconButton(onPressed: () {
               Navigator.push(
@@ -75,44 +76,45 @@ class _HomePageState extends State<HomePage> {
               ));
             }, icon: Icon(Icons.play_arrow)),
           ),
-        )
-        // body: SingleChildScrollView(
-        //   child: Padding(
-        //     padding: const EdgeInsets.all(16.0),
-        //     child: Column(
-        //       crossAxisAlignment: CrossAxisAlignment.start,
-        //       children: [
-        //         // Раздел "Ваши плейлисты"
-        //         Text(
-        //           'Ваши плейлисты',
-        //           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        //         ),
-        //         SizedBox(height: 10),
-        //         _buildHorizontalScrollableImages(2, isCircle: false),
-        //         SizedBox(height: 20),
+        ),
+        drawer: DrawerPage(),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Раздел "Ваши плейлисты"
+                Text(
+                  'Ваши плейлисты',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 10),
+                _buildHorizontalScrollableImages(2, isCircle: false),
+                SizedBox(height: 20),
       
-        //         // Раздел "Популярные исполнители"
-        //         Text(
-        //           'Популярные исполнители',
-        //           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        //         ),
-        //         SizedBox(height: 10),
-        //         _buildHorizontalScrollableImages(1, isCircle: true),
-        //         SizedBox(height: 20),
+                // Раздел "Популярные исполнители"
+                Text(
+                  'Популярные исполнители',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 10),
+                _buildHorizontalScrollableImages(1, isCircle: true),
+                SizedBox(height: 20),
       
-        //         // Раздел "Альбомы"
-        //         Text(
-        //           'Альбомы',
-        //           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        //         ),
-        //         SizedBox(height: 10),
-        //         _buildHorizontalScrollableImages(1, isAlbums: true),
-        //       ],
-        //     ),
-        //   ),
-        // ),
+                // Раздел "Альбомы"
+                Text(
+                  'Треки',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 10),
+                _buildHorizontalScrollableImages(1, isTracks: true),
+              ],
+            ),
+          ),
+        ),
       
-        // Нижняя панель с кнопками "Назад", "Домой" и "Вперед"
+        //Нижняя панель с кнопками "Назад", "Домой" и "Вперед"
         // bottomNavigationBar: BottomAppBar(
         //   color: Colors.white,
         //   child: Row(
@@ -152,41 +154,41 @@ class _HomePageState extends State<HomePage> {
     );
   }
   
-  // Метод для создания прокручиваемых строк с изображениями
-  // Widget _buildHorizontalScrollableImages(int numberOfRows, {bool isCircle = false, bool isAlbums = false}) {
-  //   return Column(
-  //     children: List.generate(numberOfRows, (index) {
-  //       return Container(
-  //         height: 100,
-  //         margin: EdgeInsets.only(bottom: 10),
-  //         child: ListView(
-  //           scrollDirection: Axis.horizontal,
-  //           children: List.generate(10, (index) {
-  //             return Container(
-  //               width: 100,
-  //               height: 100,
-  //               margin: EdgeInsets.symmetric(horizontal: 8),
-  //               decoration: BoxDecoration(
-  //                 color: Colors.grey[300],
-  //                 borderRadius: isCircle
-  //                     ? BorderRadius.circular(100)
-  //                     : BorderRadius.circular(30),
-  //               ),
-  //               child: Center(
-  //                 child: Text(
-  //                   isCircle
-  //                     ? 'Исполнитель ${index + 1}'
-  //                     : isAlbums
-  //                         ? 'Альбом ${index + 1}'
-  //                         : 'Плейлист ${index + 1}',
-  //                   style: TextStyle(fontSize: 13),
-  //                 ),
-  //               ),
-  //             );
-  //           }),
-  //         ),
-  //       );
-  //     }),
-  //   );
-  // }
+  //Метод для создания прокручиваемых строк с изображениями
+  Widget _buildHorizontalScrollableImages(int numberOfRows, {bool isCircle = false, bool isTracks = false}) {
+    return Column(
+      children: List.generate(numberOfRows, (index) {
+        return Container(
+          height: 100,
+          margin: EdgeInsets.only(bottom: 10),
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: List.generate(10, (index) {
+              return Container(
+                width: 100,
+                height: 100,
+                margin: EdgeInsets.symmetric(horizontal: 8),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: isCircle
+                      ? BorderRadius.circular(100)
+                      : BorderRadius.circular(30),
+                ),
+                child: Center(
+                  child: Text(
+                    isCircle
+                      ? 'Исполнитель ${index + 1}'
+                      : isTracks
+                          ? 'Трек ${index + 1}'
+                          : 'Плейлист ${index + 1}',
+                    style: TextStyle(fontSize: 13),
+                  ),
+                ),
+              );
+            }),
+          ),
+        );
+      }),
+    );
+  }
 }

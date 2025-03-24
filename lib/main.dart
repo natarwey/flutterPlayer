@@ -28,7 +28,7 @@ class AppTheme extends StatelessWidget {
           iconColor: Colors.white,
         ),
         appBarTheme: AppBarTheme(
-          backgroundColor: Colors.blueGrey,
+          backgroundColor: Colors.transparent,
           titleTextStyle: TextStyle(
             color: Colors.white,
             fontSize: 20,
