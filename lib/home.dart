@@ -1,11 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/database/auth.dart';
+import 'package:flutter_application_1/database/storage/track.dart';
+import 'package:flutter_application_1/database/storage/track_service.dart';
 import 'package:flutter_application_1/drawer.dart';
 import 'package:flutter_application_1/main.dart';
 import 'package:flutter_application_1/music/player.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_application_1/profile.dart'; 
+//import 'package:flutter_application_1/profile.dart'; 
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,7 +19,45 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   AuthService authService = AuthService();
-  final TextEditingController _searchController = TextEditingController();
+  //final TextEditingController _searchController = TextEditingController();
+  final SupabaseClient supabase = Supabase.instance.client;
+  final TrackService trackService = TrackService();
+  List<Track> tracks = [];
+  Track? currentTrack;
+  bool isLoading = true;
+  String? errorMessage;
+
+Future<void> _fetchTracks() async {
+    try {
+      setState(() {
+        isLoading = true;
+        errorMessage = null;
+      });
+
+      final loadedTracks = await trackService.getTracks();
+
+      setState(() {
+        tracks = loadedTracks;
+        if (tracks.isNotEmpty) {
+          currentTrack = tracks[0];
+        }
+      });
+    } catch (e) {
+      setState(() {
+        errorMessage = "Ошибка загрузки треков: ${e.toString()}";
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTracks();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,26 +98,21 @@ class _HomePageState extends State<HomePage> {
           ]
         ),
       
-        bottomNavigationBar: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: ListTile(
-            leading: Icon(Icons.music_note),
-            title: Text('----------------------------------------------------------------'),
-            subtitle: Text('Название'),
-            trailing: IconButton(onPressed: () {
-              Navigator.push(
-                context,
-                CupertinoPageRoute(
-                  builder: (context) => PlayerPage(
-                    nameSound: 'Я делаю шаг',
-                    author: 'The Hatters',
-                    urlMusic: 'https://qklzkuvjpyvdvzzbiltm.supabase.co/storage/v1/object/public/storages//The_Hatters_-_YA_delayu_shag_71431912.mp3',
-                    urlPhoto: 'https://qklzkuvjpyvdvzzbiltm.supabase.co/storage/v1/object/public/storages//photo1.webp',
-                  )
-              ));
-            }, icon: Icon(Icons.play_arrow)),
-          ),
-        ),
+        bottomNavigationBar: currentTrack != null
+            ? Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: ListTile(
+                  leading: currentTrack!.imageUrl.isNotEmpty
+                      ? Image.network(currentTrack!.imageUrl, width: 40, height: 40)
+                      : const Icon(Icons.music_note),
+                  title: Text(currentTrack!.name),
+                  trailing: IconButton(
+                    onPressed: () => _playTrack(currentTrack!),
+                    icon: const Icon(Icons.play_arrow),
+                  ),
+                ),
+              )
+            : null,
         drawer: DrawerPage(),
         body: SingleChildScrollView(
           child: Padding(
@@ -102,13 +138,13 @@ class _HomePageState extends State<HomePage> {
                 _buildHorizontalScrollableImages(1, isCircle: true),
                 SizedBox(height: 20),
       
-                // Раздел "Альбомы"
+                // Раздел "Треки"
                 Text(
                   'Треки',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 10),
-                _buildHorizontalScrollableImages(1, isTracks: true),
+                _buildTracksList(),
               ],
             ),
           ),
@@ -150,6 +186,57 @@ class _HomePageState extends State<HomePage> {
         //     ],
         //   ),
         // ),
+      ),
+    );
+  }
+
+Widget _buildTracksList() {
+    if (isLoading) return const Center(child: CircularProgressIndicator());
+    if (errorMessage != null) return Center(child: Text(errorMessage!));
+    
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: tracks.length,
+      itemBuilder: (ctx, index) {
+        final track = tracks[index];
+        return ListTile(
+          leading: track.imageUrl.isNotEmpty
+              ? Image.network(track.imageUrl, width: 50, height: 50)
+              : const Icon(Icons.music_note),
+          title: Text(track.name),
+          subtitle: FutureBuilder(
+            future: _getAuthorName(track.authorId),
+            builder: (ctx, snapshot) {
+              return Text(snapshot.data ?? 'Unknown Artist');
+            },
+          ),
+          onTap: () => _playTrack(track),
+        );
+      },
+    );
+  }
+
+  Future<String> _getAuthorName(int authorId) async {
+    final response = await supabase
+        .from('author')
+        .select('name')
+        .eq('id', authorId)
+        .single();
+    
+    return response['name'] as String;
+  }
+
+void _playTrack(Track track) {
+    Navigator.push(
+      context,
+      CupertinoPageRoute(
+        builder: (_) => PlayerPage(
+          nameSound: track.name,
+          author: 'Loading...',
+          urlMusic: track.musicUrl,
+          urlPhoto: track.imageUrl,
+        ),
       ),
     );
   }

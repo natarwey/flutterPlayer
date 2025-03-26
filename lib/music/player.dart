@@ -1,19 +1,18 @@
-// ignore_for_file: must_be_immutable
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
 class PlayerPage extends StatefulWidget {
-  String? urlMusic;
-  String? urlPhoto;
-  String? nameSound;
-  String? author;
-  PlayerPage({
+  final String urlMusic;
+  final String? urlPhoto;
+  final String nameSound;
+  final String author;
+
+  const PlayerPage({
     super.key,
-    this.urlMusic,
+    required this.urlMusic,
+    required this.nameSound,
+    required this.author,
     this.urlPhoto,
-    this.nameSound,
-    this.author,
   });
 
   @override
@@ -21,70 +20,66 @@ class PlayerPage extends StatefulWidget {
 }
 
 class _PlayerPageState extends State<PlayerPage> {
-  String? _urlMusic;
-  String? _urlPhoto;
-  String? _nameSound;
-  String? _author;
-  bool isPlaying = false;
-  late final AudioPlayer audioPlayer;
-  late final UrlSource urlSource;
-  Duration _duration = Duration();
-  Duration _position = Duration();
+  late final AudioPlayer _audioPlayer;
+  bool _isPlaying = false;
+  Duration _duration = Duration.zero;
+  Duration _position = Duration.zero;
+  String? _errorMessage;
 
-  Future initPlayer() async {
-    audioPlayer = AudioPlayer();
-
-    /// Сюда с констуктора необходимо закинуть ссылку
-    urlSource = UrlSource(_urlMusic!);
-
-    // Чтобы следить за временем
-    audioPlayer.onDurationChanged.listen((duration) {
-      setState(() {
-        _duration = duration;
-      });
-    });
-
-    /// Позиция песни
-    audioPlayer.onPositionChanged.listen((position) {
-      setState(() {
-        _position = position;
-      });
-    });
-    // Чтобы завершалась
-    audioPlayer.onPlayerComplete.listen((comleted) {
-      setState(() {
-        _position = _duration;
-        // isPlaying = !isPlaying;
-      });
-    });
-  }
-
-  // Для проигрывания и паузы
-  void playPause() async {
-    if (isPlaying) {
-      audioPlayer.pause();
-      isPlaying = false;
-    } else {
-      audioPlayer.play(urlSource);
-      isPlaying = true;
-    }
-    setState(() {});
-  }
-
-  // Инициализация
   @override
   void initState() {
-    _urlPhoto = widget.urlPhoto;
-    _urlMusic = widget.urlMusic;
-    _author = widget.author;
-    _nameSound = widget.nameSound;
-    initPlayer();
     super.initState();
+    _audioPlayer = AudioPlayer()
+      ..onDurationChanged.listen((duration) {
+        setState(() => _duration = duration);
+      })
+      ..onPositionChanged.listen((position) {
+        setState(() => _position = position);
+      })
+      ..onPlayerStateChanged.listen((state) {
+        setState(() {
+          _isPlaying = state == PlayerState.playing;
+        });
+      });
+
+    _initAudio();
+  }
+
+  Future<void> _initAudio() async {
+    try {
+      await _audioPlayer.setSource(UrlSource(widget.urlMusic));
+      final duration = await _audioPlayer.getDuration();
+      if (duration != null) {
+        setState(() => _duration = duration);
+      }
+    } catch (e) {
+      setState(() => _errorMessage = 'Ошибка загрузки аудио: $e');
+    }
+  }
+
+  Future<void> _playPause() async {
+    try {
+      if (_isPlaying) {
+        await _audioPlayer.pause();
+      } else {
+        await _audioPlayer.resume();
+      }
+    } catch (e) {
+      setState(() => _errorMessage = 'Ошибка воспроизведения: $e');
+    }
+  }
+
+  Future<void> _seek(Duration position) async {
+    try {
+      await _audioPlayer.seek(position);
+    } catch (e) {
+      setState(() => _errorMessage = 'Ошибка перемотки: $e');
+    }
   }
 
   @override
   void dispose() {
-    audioPlayer.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -92,9 +87,7 @@ class _PlayerPageState extends State<PlayerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        height: double.infinity,
-        width: double.infinity,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -104,98 +97,119 @@ class _PlayerPageState extends State<PlayerPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-
-              /// Cюда с констуктора закинуть ссылку на картинку
-              child: Image.network(
-                _urlPhoto!,
-                height: MediaQuery.of(context).size.height * 0.3,
-                width: MediaQuery.of(context).size.width * 0.6,
+            if (_errorMessage != null)
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  _errorMessage!,
+                  style: const TextStyle(color: Colors.red, fontSize: 16),
+                  textAlign: TextAlign.center,
+                ),
               ),
-            ),
-            // Должно браться с бд
+
+            // Обложка трека
+            if (widget.urlPhoto != null)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.network(
+                  widget.urlPhoto!,
+                  height: MediaQuery.of(context).size.height * 0.3,
+                  width: MediaQuery.of(context).size.width * 0.6,
+                  errorBuilder: (_, __, ___) => 
+                      const Icon(Icons.music_note, size: 100),
+                ),
+              )
+            else
+              const Icon(Icons.music_note, size: 100),
+
+            // Информация о треке
             ListTile(
               textColor: Colors.white,
               title: Text(
-                _nameSound!,
+                widget.nameSound,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold, 
+                  fontSize: 24
+                ),
               ),
               subtitle: Text(
-                _author!,
+                widget.author,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold, 
+                  fontSize: 18
+                ),
               ),
             ),
 
-            Slider(
-              min: 0,
-              max: _duration.inSeconds.toDouble(),
-              activeColor: Colors.blue,
-              inactiveColor: Colors.white,
-              value: _position.inSeconds.toDouble(),
-              onChanged: (value) async {
-                await audioPlayer.seek(Duration(seconds: value.toInt()));
-                setState(() {});
-              },
+            // Прогресс бар
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Slider(
+                min: 0,
+                max: _duration.inSeconds.toDouble(),
+                value: _position.inSeconds.clamp(
+                  0, 
+                  _duration.inSeconds
+                ).toDouble(),
+                activeColor: Colors.white,
+                inactiveColor: Colors.white54,
+                onChanged: (value) => _seek(Duration(seconds: value.toInt())),
+              ),
             ),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text(
-                  _position.format(_position),
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+            // Время трека
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    _position.format(),
+                    style: const TextStyle(color: Colors.white),
                   ),
-                ),
-                Text(" / ", style: TextStyle(color: Colors.white)),
-                Text(
-                  _duration.format(_duration),
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+                  Text(
+                    _duration.format(),
+                    style: const TextStyle(color: Colors.white),
                   ),
-                ),
-                SizedBox(width: MediaQuery.of(context).size.width * 0.05),
-              ],
+                ],
+              ),
             ),
+
+            // Управление воспроизведением
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Назад
+                // Перемотка назад
                 IconButton(
+                  icon: const Icon(Icons.fast_rewind, size: 40),
                   color: Colors.white,
-                  onPressed: () {
-                    audioPlayer.seek(
-                      Duration(seconds: _position.inSeconds - 10),
-                    );
-                    setState(() {});
-                  },
-                  icon: SizedBox(child: Icon(Icons.fast_rewind, size: 60)),
-                ),
-                // Проигрывать
+                  onPressed: () => _seek(Duration(
+                    seconds: (_position.inSeconds - 10)
+                      .clamp(0, _duration.inSeconds)
+                  ),
+                )),
+                
+                // Play/Pause
                 IconButton(
+                  icon: Icon(
+                    _isPlaying ? Icons.pause_circle : Icons.play_circle,
+                    size: 60,
+                  ),
                   color: Colors.white,
-                  onPressed: playPause,
-                  icon:
-                      isPlaying
-                          ? Icon(Icons.pause_circle, size: 60)
-                          : Icon(Icons.play_circle, size: 60),
+                  onPressed: _playPause,
                 ),
-                // Дальше
+                
+                // Перемотка вперёд
                 IconButton(
+                  icon: const Icon(Icons.fast_forward, size: 40),
                   color: Colors.white,
-                  onPressed: () {
-                    audioPlayer.seek(
-                      Duration(seconds: _position.inSeconds + 10),
-                    );
-                    setState(() {});
-                  },
-                  icon: Icon(Icons.fast_forward, size: 60),
-                ),
+                  onPressed: () => _seek(Duration(
+                    seconds: (_position.inSeconds + 10)
+                      .clamp(0, _duration.inSeconds)
+                  ),
+                )),
               ],
             ),
           ],
@@ -205,17 +219,11 @@ class _PlayerPageState extends State<PlayerPage> {
   }
 }
 
-// Форматирование времени при воспроизведении плеера
-extension on Duration {
-  String format(Duration duration) {
-    String minutes = duration.inMinutes
-        .remainder(60)
-        .toString()
-        .padLeft(2, '0');
-    String seconds = duration.inSeconds
-        .remainder(60)
-        .toString()
-        .padLeft(2, '0');
-    return "$minutes:$seconds";
+extension DurationFormatter on Duration {
+  String format() {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    final minutes = twoDigits(inMinutes.remainder(60));
+    final seconds = twoDigits(inSeconds.remainder(60));
+    return '$minutes:$seconds';
   }
 }
