@@ -23,6 +23,7 @@ class _HomePageState extends State<HomePage> {
   final SupabaseClient supabase = Supabase.instance.client;
   final TrackService trackService = TrackService();
   List<Track> tracks = [];
+  Track? selectedTrack;
   Track? currentTrack;
   bool isLoading = true;
   String? errorMessage;
@@ -98,22 +99,36 @@ Future<void> _fetchTracks() async {
           ]
         ),
       
-        bottomNavigationBar: currentTrack != null
-            ? Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: ListTile(
-                  leading: currentTrack!.imageUrl.isNotEmpty
-                      ? Image.network(currentTrack!.imageUrl, width: 40, height: 40)
-                      : const Icon(Icons.music_note),
-                  title: Text(currentTrack!.name),
-                  trailing: IconButton(
-                    onPressed: () => _playTrack(currentTrack!),
-                    icon: const Icon(Icons.play_arrow),
+        bottomNavigationBar: selectedTrack != null
+            ? GestureDetector(
+                onTap: () {
+                  if (selectedTrack != null) {
+                    _playTrack(selectedTrack!);
+                  }
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: ListTile(
+                    leading: selectedTrack!.imageUrl.isNotEmpty
+                        ? Image.network(
+                            selectedTrack!.imageUrl, 
+                            width: 40, 
+                            height: 40,
+                          )
+                        : const Icon(Icons.music_note),
+                    title: Text(selectedTrack!.name),
+                    subtitle: FutureBuilder(
+                      future: _getAuthorName(selectedTrack!.authorId),
+                      builder: (ctx, snapshot) {
+                        return Text(snapshot.data ?? 'Unknown Artist');
+                      },
+                    ),
+                    trailing: const Icon(Icons.play_arrow),
                   ),
                 ),
               )
             : null,
-        drawer: DrawerPage(),
+        drawer: const DrawerPage(),
         body: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -211,7 +226,11 @@ Widget _buildTracksList() {
               return Text(snapshot.data ?? 'Unknown Artist');
             },
           ),
-          onTap: () => _playTrack(track),
+          onTap: () {
+            setState(() {
+              selectedTrack = track;
+            });
+          },
         );
       },
     );
@@ -227,18 +246,26 @@ Widget _buildTracksList() {
     return response['name'] as String;
   }
 
-void _playTrack(Track track) {
-    Navigator.push(
-      context,
-      CupertinoPageRoute(
-        builder: (_) => PlayerPage(
-          nameSound: track.name,
-          author: 'Loading...',
-          urlMusic: track.musicUrl,
-          urlPhoto: track.imageUrl,
+Future<void> _playTrack(Track track) async {
+  final authorName = await TrackService().getAuthorName(track.authorId);
+  
+  if (mounted) {
+      setState(() {
+        currentTrack = track; // Обновляем текущий трек
+      });
+      
+      Navigator.push(
+        context,
+        CupertinoPageRoute(
+          builder: (_) => PlayerPage(
+            nameSound: track.name,
+            author: authorName,
+            urlMusic: track.musicUrl,
+            urlPhoto: track.imageUrl,
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
   
   //Метод для создания прокручиваемых строк с изображениями
@@ -247,14 +274,14 @@ void _playTrack(Track track) {
       children: List.generate(numberOfRows, (index) {
         return Container(
           height: 100,
-          margin: EdgeInsets.only(bottom: 10),
+          margin: const EdgeInsets.only(bottom: 10),
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: List.generate(10, (index) {
               return Container(
                 width: 100,
                 height: 100,
-                margin: EdgeInsets.symmetric(horizontal: 8),
+                margin: const EdgeInsets.symmetric(horizontal: 8),
                 decoration: BoxDecoration(
                   color: Colors.grey[300],
                   borderRadius: isCircle
@@ -268,7 +295,7 @@ void _playTrack(Track track) {
                       : isTracks
                           ? 'Трек ${index + 1}'
                           : 'Плейлист ${index + 1}',
-                    style: TextStyle(fontSize: 13),
+                    style: const TextStyle(fontSize: 13),
                   ),
                 ),
               );

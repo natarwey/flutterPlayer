@@ -6,6 +6,21 @@ class TrackService {
 
   TrackService() : _supabase = Supabase.instance.client;
 
+  Future<String> getAuthorName(int authorId) async {
+    try {
+      final response = await _supabase
+          .from('author')
+          .select('name')
+          .eq('id', authorId)
+          .single();
+
+      return response['name'] as String;
+    } catch (e) {
+      print('Error fetching author: $e');
+      return 'Unknown Artist';
+    }
+  }
+
   Future<List<Track>> getTracks() async {
     try {
       final response = await _supabase
