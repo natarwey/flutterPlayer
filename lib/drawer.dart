@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/playlist.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DrawerPage extends StatefulWidget {
@@ -82,7 +83,13 @@ class _DrawerPageState extends State<DrawerPage> {
               textColor: Colors.white,
               title: Text("Плейлисты"),
               leading: Icon(Icons.featured_play_list),
-              onTap: () {},
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PlaylistsPage()),
+                );
+              },
             ),
           ],
         ),
