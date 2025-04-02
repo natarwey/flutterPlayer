@@ -33,48 +33,59 @@ class _DrawerPageState extends State<DrawerPage> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: ListView(
-        children: [
-          DrawerHeader(
-            child: UserAccountsDrawerHeader(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: Colors.white10
-              ),
-              accountName: Text(docs['name']),
-              accountEmail: Text(docs['email']),
-              currentAccountPicture: Container(
-                alignment: Alignment.topCenter,
-                child: CircleAvatar(
-                  maxRadius: 20,
-                  minRadius: 10,
-                  backgroundImage: NetworkImage(
-                    'https://qklzkuvjpyvdvzzbiltm.supabase.co/storage/v1/object/public/storages//profil.webp'),
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.blue, Colors.blueGrey],
+          ),
+        ),
+        child: ListView(
+          children: [
+            DrawerHeader(
+              child: UserAccountsDrawerHeader(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.white10
                 ),
-              ),
-              otherAccountsPictures: [
-                IconButton(
-                  onPressed: () {},
-                  icon: Icon(Icons.logout),
-                )
-              ],
-            )
-          ),
-          ListTile(
-            iconColor: Colors.red,
-            textColor: Colors.white,
-            title: Text("Моя музыка"),
-            leading: Icon(Icons.music_note),
-            onTap: () {},
-          ),
-          ListTile(
-            iconColor: Colors.yellow,
-            textColor: Colors.white,
-            title: Text("Плейлисты"),
-            leading: Icon(Icons.featured_play_list),
-            onTap: () {},
-          ),
-        ],
+                accountName: Text(docs['name']),
+                accountEmail: Text(docs['email']),
+                currentAccountPicture: Container(
+                  alignment: Alignment.topCenter,
+                  child: CircleAvatar(
+                    maxRadius: 20,
+                    minRadius: 10,
+                    backgroundImage: NetworkImage(
+                      'https://qklzkuvjpyvdvzzbiltm.supabase.co/storage/v1/object/public/storages//profil.webp'),
+                  ),
+                ),
+                otherAccountsPictures: [
+                  IconButton(
+                    onPressed: () {
+                      Navigator.popAndPushNamed(context, '/auth');
+                    },
+                    icon: Icon(Icons.logout),
+                    color: Colors.white,
+                        tooltip: 'Logout',
+                  )
+                ],
+              )
+            ),
+            ListTile(
+              iconColor: Colors.red,
+              textColor: Colors.white,
+              title: Text("Моя музыка"),
+              leading: Icon(Icons.music_note),
+              onTap: () {},
+            ),
+            ListTile(
+              iconColor: Colors.yellow,
+              textColor: Colors.white,
+              title: Text("Плейлисты"),
+              leading: Icon(Icons.featured_play_list),
+              onTap: () {},
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -6,7 +6,7 @@ import 'package:flutter_application_1/database/storage/track_service.dart';
 import 'package:flutter_application_1/drawer.dart';
 import 'package:flutter_application_1/main.dart';
 import 'package:flutter_application_1/music/player.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+//import 'package:shared_preferences/shared_preferences.dart';
 //import 'package:flutter_application_1/profile.dart'; 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -19,14 +19,17 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   AuthService authService = AuthService();
-  //final TextEditingController _searchController = TextEditingController();
   final SupabaseClient supabase = Supabase.instance.client;
   final TrackService trackService = TrackService();
   List<Track> tracks = [];
+  List<Track> filteredTracks = [];
   Track? selectedTrack;
   Track? currentTrack;
   bool isLoading = true;
   String? errorMessage;
+  String searchQuery = '';
+  List<Map<String, dynamic>> authors = [];
+  int? selectedAuthorId;
 
 Future<void> _fetchTracks() async {
     try {
@@ -39,6 +42,7 @@ Future<void> _fetchTracks() async {
 
       setState(() {
         tracks = loadedTracks;
+        filteredTracks = List.from(loadedTracks);
         if (tracks.isNotEmpty) {
           currentTrack = tracks[0];
         }
@@ -58,6 +62,135 @@ Future<void> _fetchTracks() async {
   void initState() {
     super.initState();
     _fetchTracks();
+    _fetchAuthors();
+  }
+
+  Future<void> _fetchAuthors() async {
+    try {
+      final response = await supabase
+          .from('author')
+          .select('id, name, image_url');
+      
+      setState(() {
+        authors = response;
+      });
+    } catch (e) {
+      print('Ошибка загрузки исполнителей: $e');
+    }
+  }
+
+  void _filterByAuthor(int? authorId) {
+    setState(() {
+      selectedAuthorId = authorId;
+      if (authorId == null) {
+        filteredTracks = List.from(tracks);
+      } else {
+        filteredTracks = tracks.where((track) => track.authorId == authorId).toList();
+      }
+    });
+  }
+
+  Widget _buildAuthorsList() {
+    if (authors.isEmpty) return SizedBox();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              'Исполнители',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            if (selectedAuthorId != null)
+              TextButton(
+                onPressed: () => _filterByAuthor(null),
+                child: Text(
+                  'Сбросить',
+                  style: TextStyle(color: Colors.white70),
+                ),
+              ),
+          ],
+        ),
+        SizedBox(height: 10),
+        SizedBox(
+          height: 100,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: authors.length,
+            itemBuilder: (ctx, index) {
+              final author = authors[index];
+              return GestureDetector(
+                onTap: () => _filterByAuthor(author['id']),
+                child: Container(
+                  width: 80,
+                  margin: EdgeInsets.only(right: 10),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 70,
+                        height: 70,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: selectedAuthorId == author['id'] 
+                              ? Colors.blue 
+                              : Colors.grey[300],
+                          image: author['image_url'] != null 
+                              ? DecorationImage(
+                                  image: NetworkImage(author['image_url']),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
+                        ),
+                        child: author['image_url'] == null
+                            ? Icon(Icons.person, size: 40)
+                            : null,
+                      ),
+                      SizedBox(height: 5),
+                      Text(
+                        author['name'],
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: selectedAuthorId == author['id']
+                              ? Colors.white
+                              : Colors.white,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        SizedBox(height: 20),
+      ],
+    );
+  }
+
+  void _filterTracks(String query) {
+    setState(() {
+      searchQuery = query;
+      if (query.isEmpty) {
+        filteredTracks = selectedAuthorId == null 
+            ? List.from(tracks)
+            : tracks.where((t) => t.authorId == selectedAuthorId).toList();
+      } else {
+        filteredTracks = tracks.where((track) {
+          final matchesSearch = track.name.toLowerCase().contains(query.toLowerCase());
+          final matchesAuthor = selectedAuthorId == null || track.authorId == selectedAuthorId;
+          return matchesSearch && matchesAuthor;
+        }).toList();
+      }
+    });
+  }
+
+  void resetSelectedTrack() {
+    setState(() {
+      selectedTrack = null;
+    });
   }
 
   @override
@@ -65,38 +198,9 @@ Future<void> _fetchTracks() async {
     return GradientBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
+        drawer: DrawerPage(),
         appBar: AppBar(
-        automaticallyImplyLeading: false,
           title: Text("Home"),
-          //leading: IconButton(
-            // icon: Icon(Icons.person, color: Colors.white),
-            // onPressed: () {
-            //   Navigator.push(
-            //     context,
-            //     CupertinoPageRoute(
-            //       builder: (context) => ProfilePage(
-            //         userName: 'Рената',
-            //         userEmail: 'natarwey.basharova@yandex.ru',
-            //         userPhotoUrl: 'https://qklzkuvjpyvdvzzbiltm.supabase.co/storage/v1/object/public/storages//profil.webp',
-            //       ),
-            //     ),
-            //   );
-            // },
-          //),
-          actions: [
-            IconButton(
-              onPressed: () async {
-                await authService.logOut();
-                final prefs = await SharedPreferences.getInstance();
-                await prefs.setBool('isLoggedIn', false);
-                Navigator.popAndPushNamed(context, '/');
-              },
-              icon: Icon(
-                Icons.logout,
-                color: Colors.white,
-              ),
-              )
-          ]
         ),
       
         bottomNavigationBar: selectedTrack != null
@@ -128,30 +232,52 @@ Future<void> _fetchTracks() async {
                 ),
               )
             : null,
-        drawer: const DrawerPage(),
+        
         body: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Раздел "Ваши плейлисты"
-                Text(
-                  'Ваши плейлисты',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: TextField(
+                    cursorColor: Colors.white,
+                    decoration: InputDecoration(
+                      hintText: 'Поиск...',
+                      hintStyle: TextStyle(color: Colors.white70),
+                      prefixIcon: Icon(Icons.search, color: Colors.white),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide(color: Colors.white54),
+                      ),
+                    ),
+                    style: TextStyle(color: Colors.white),
+                    onChanged: _filterTracks,
+                  ),
                 ),
-                SizedBox(height: 10),
-                _buildHorizontalScrollableImages(2, isCircle: false),
-                SizedBox(height: 20),
+                // Раздел "Ваши плейлисты"
+                // Text(
+                //   'Ваши плейлисты',
+                //   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                // ),
+                // SizedBox(height: 10),
+                // _buildHorizontalScrollableImages(2, isCircle: false),
+                // SizedBox(height: 20),
       
                 // Раздел "Популярные исполнители"
-                Text(
-                  'Популярные исполнители',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 10),
-                _buildHorizontalScrollableImages(1, isCircle: true),
-                SizedBox(height: 20),
+                _buildAuthorsList(),
+                // Text(
+                //   'Популярные исполнители',
+                //   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                // ),
+                // SizedBox(height: 10),
+                // _buildHorizontalScrollableImages(1, isCircle: true),
+                // SizedBox(height: 20),
       
                 // Раздел "Треки"
                 Text(
@@ -208,13 +334,22 @@ Future<void> _fetchTracks() async {
 Widget _buildTracksList() {
     if (isLoading) return const Center(child: CircularProgressIndicator());
     if (errorMessage != null) return Center(child: Text(errorMessage!));
+
+    if (searchQuery.isNotEmpty && filteredTracks.isEmpty) {
+    return Center(
+      child: Text(
+        'Ничего не найдено по запросу "$searchQuery"',
+        style: TextStyle(color: Colors.white),
+      ),
+    );
+  }
     
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: tracks.length,
+      itemCount: filteredTracks.length,
       itemBuilder: (ctx, index) {
-        final track = tracks[index];
+        final track = filteredTracks[index];
         return ListTile(
           leading: track.imageUrl.isNotEmpty
               ? Image.network(track.imageUrl, width: 50, height: 50)
@@ -251,7 +386,7 @@ Future<void> _playTrack(Track track) async {
   
   if (mounted) {
       setState(() {
-        currentTrack = track; // Обновляем текущий трек
+        currentTrack = track;
       });
       
       Navigator.push(
@@ -262,6 +397,7 @@ Future<void> _playTrack(Track track) async {
             author: authorName,
             urlMusic: track.musicUrl,
             urlPhoto: track.imageUrl,
+            onBack: resetSelectedTrack,
           ),
         ),
       );
@@ -269,40 +405,40 @@ Future<void> _playTrack(Track track) async {
   }
   
   //Метод для создания прокручиваемых строк с изображениями
-  Widget _buildHorizontalScrollableImages(int numberOfRows, {bool isCircle = false, bool isTracks = false}) {
-    return Column(
-      children: List.generate(numberOfRows, (index) {
-        return Container(
-          height: 100,
-          margin: const EdgeInsets.only(bottom: 10),
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            children: List.generate(10, (index) {
-              return Container(
-                width: 100,
-                height: 100,
-                margin: const EdgeInsets.symmetric(horizontal: 8),
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: isCircle
-                      ? BorderRadius.circular(100)
-                      : BorderRadius.circular(30),
-                ),
-                child: Center(
-                  child: Text(
-                    isCircle
-                      ? 'Исполнитель ${index + 1}'
-                      : isTracks
-                          ? 'Трек ${index + 1}'
-                          : 'Плейлист ${index + 1}',
-                    style: const TextStyle(fontSize: 13),
-                  ),
-                ),
-              );
-            }),
-          ),
-        );
-      }),
-    );
-  }
+  // Widget _buildHorizontalScrollableImages(int numberOfRows, {bool isCircle = false, bool isTracks = false}) {
+  //   return Column(
+  //     children: List.generate(numberOfRows, (index) {
+  //       return Container(
+  //         height: 100,
+  //         margin: const EdgeInsets.only(bottom: 10),
+  //         child: ListView(
+  //           scrollDirection: Axis.horizontal,
+  //           children: List.generate(10, (index) {
+  //             return Container(
+  //               width: 100,
+  //               height: 100,
+  //               margin: const EdgeInsets.symmetric(horizontal: 8),
+  //               decoration: BoxDecoration(
+  //                 color: Colors.grey[300],
+  //                 borderRadius: isCircle
+  //                     ? BorderRadius.circular(100)
+  //                     : BorderRadius.circular(30),
+  //               ),
+  //               child: Center(
+  //                 child: Text(
+  //                   isCircle
+  //                     ? 'Исполнитель ${index + 1}'
+  //                     : isTracks
+  //                         ? 'Трек ${index + 1}'
+  //                         : 'Плейлист ${index + 1}',
+  //                   style: const TextStyle(fontSize: 13),
+  //                 ),
+  //               ),
+  //             );
+  //           }),
+  //         ),
+  //       );
+  //     }),
+  //   );
+  // }
 }

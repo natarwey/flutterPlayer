@@ -6,6 +6,7 @@ class PlayerPage extends StatefulWidget {
   final String? urlPhoto;
   final String nameSound;
   final String author;
+  final Function onBack;
 
   const PlayerPage({
     super.key,
@@ -13,6 +14,7 @@ class PlayerPage extends StatefulWidget {
     required this.nameSound,
     required this.author,
     this.urlPhoto,
+    required this.onBack,
   });
 
   @override
@@ -81,6 +83,11 @@ class _PlayerPageState extends State<PlayerPage> {
   void dispose() {
     _audioPlayer.dispose();
     super.dispose();
+  }
+
+  Future<void> _goBack() async {
+    widget.onBack();
+    Navigator.pop(context);
   }
 
   @override
@@ -208,9 +215,14 @@ class _PlayerPageState extends State<PlayerPage> {
                   onPressed: () => _seek(Duration(
                     seconds: (_position.inSeconds + 10)
                       .clamp(0, _duration.inSeconds)
-                  ),
-                )),
+                  )),
+                ),
               ],
+            ),
+            IconButton(
+              icon: const Icon(Icons.arrow_back, size: 40),
+              color: Colors.white,
+              onPressed: _goBack,
             ),
           ],
         ),
