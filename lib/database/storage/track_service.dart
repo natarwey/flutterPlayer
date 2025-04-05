@@ -28,7 +28,7 @@ class TrackService {
           .select('*')
           .order('created_at', ascending: false);
 
-      return response.map((json) => Track.fromJson(json)).toList();
+      return response.map((map) => Track.fromMap(map)).toList();
     } catch (e) {
       throw Exception('Failed to load tracks: $e');
     }
@@ -40,6 +40,6 @@ class TrackService {
         .select('*')
         .eq('author_id', authorId);
     
-    return response.map((json) => Track.fromJson(json)).toList();
+    return response.map((map) => Track.fromMap(map)).toList();
   }
 }

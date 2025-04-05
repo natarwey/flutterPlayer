@@ -17,15 +17,15 @@ class Track {
     required this.createdAt,
   });
 
-  factory Track.fromJson(Map<String, dynamic> json) {
+  factory Track.fromMap(Map<String, dynamic> map) {
     return Track(
-      id: json['id'] as int,
-      name: json['name'] as String,
-      imageUrl: json['image'] as String,
-      musicUrl: json['url_music'] as String,
-      genreId: json['genre_id'] as int,
-      authorId: json['author_id'] as int,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      id: map['id'] as int,
+      name: map['name'] as String,
+      imageUrl: map['image'] as String,
+      musicUrl: map['url_music'] as String,
+      genreId: map['genre_id'] as int,
+      authorId: map['author_id'] as int,
+      createdAt: DateTime.parse(map['created_at'] as String),
     );
   }
 }

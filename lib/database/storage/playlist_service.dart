@@ -7,19 +7,19 @@ class PlaylistService {
 
   Future<List<Playlist>> getPlaylists() async {
     final response = await supabase
-        .from('playlists')
+        .from('list')
         .select('*')
         .order('created_at', ascending: false);
     
-    return response.map((p) => Playlist.fromMap(p)).toList();
+    return response.map<Playlist>((p) => Playlist.fromMap(p)).toList();
   }
 
   Future<List<Track>> getPlaylistTracks(int playlistId) async {
     final response = await supabase
-        .from('playlist_tracks')
+        .from('play_list')
         .select('track:track_id(*)')
-        .eq('playlist_id', playlistId);
+        .eq('list_id', playlistId);
     
-    return response.map((t) => Track.fromMap(t['track'])).toList();
+    return response.map<Track>((t) => Track.fromMap(t['track'])).toList();
   }
 }

@@ -62,7 +62,7 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => PlaylistTracksPage(playlistId: playlist.id),
+                              builder: (context) => PlaylistTracksPage(playlistId: playlist.id, playlistName: playlist.name),
                             ),
                           );
                         },

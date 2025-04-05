@@ -12,7 +12,7 @@ class Playlist {
   factory Playlist.fromMap(Map<String, dynamic> map) {
     return Playlist(
       id: map['id'],
-      name: map['name'],
+      name: map['list_name'],
       coverUrl: map['cover_url'],
     );
   }

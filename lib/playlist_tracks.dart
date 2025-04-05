@@ -8,8 +8,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PlaylistTracksPage extends StatefulWidget {
   final int playlistId;
+  final String playlistName;
 
-  const PlaylistTracksPage({super.key, required this.playlistId});
+
+  const PlaylistTracksPage({super.key, required this.playlistId, required this.playlistName,});
 
   @override
   State<PlaylistTracksPage> createState() => _PlaylistTracksPageState();
@@ -19,6 +21,7 @@ class _PlaylistTracksPageState extends State<PlaylistTracksPage> {
   final PlaylistService _playlistService = PlaylistService();
   List<Track> tracks = [];
   bool isLoading = true;
+  final Map<int, String> _authorNames = {};
 
   @override
   void initState() {
@@ -29,6 +32,8 @@ class _PlaylistTracksPageState extends State<PlaylistTracksPage> {
   Future<void> _loadTracks() async {
     try {
       final loadedTracks = await _playlistService.getPlaylistTracks(widget.playlistId);
+      await _preloadAuthorNames(loadedTracks);
+
       setState(() {
         tracks = loadedTracks;
       });
@@ -38,6 +43,17 @@ class _PlaylistTracksPageState extends State<PlaylistTracksPage> {
       setState(() {
         isLoading = false;
       });
+    }
+  }
+
+  Future<void> _preloadAuthorNames(List<Track> tracks) async {
+    final uniqueAuthorIds = tracks.map((t) => t.authorId).toSet();
+    
+    for (final authorId in uniqueAuthorIds) {
+      if (!_authorNames.containsKey(authorId)) {
+        final name = await _getAuthorName(authorId);
+        _authorNames[authorId] = name;
+      }
     }
   }
 
@@ -57,24 +73,21 @@ class _PlaylistTracksPageState extends State<PlaylistTracksPage> {
                     itemCount: tracks.length,
                     itemBuilder: (context, index) {
                       final track = tracks[index];
+                      final authorName = _authorNames[track.authorId] ?? 'Unknown Artist';
+
                       return ListTile(
                         leading: track.imageUrl.isNotEmpty
                             ? Image.network(track.imageUrl, width: 50, height: 50)
                             : const Icon(Icons.music_note),
                         title: Text(track.name),
-                        subtitle: FutureBuilder(
-                          future: _getAuthorName(track.authorId),
-                          builder: (ctx, snapshot) {
-                            return Text(snapshot.data ?? 'Unknown Artist');
-                          },
-                        ),
+                        subtitle: Text(authorName),
                         onTap: () {
                           Navigator.push(
                             context,
                             CupertinoPageRoute(
                               builder: (_) => PlayerPage(
                                 nameSound: track.name,
-                                author: snapshot.data ?? 'Unknown Artist',
+                                author: authorName,
                                 urlMusic: track.musicUrl,
                                 urlPhoto: track.imageUrl,
                                 onBack: () {},
