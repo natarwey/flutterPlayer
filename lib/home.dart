@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/database/auth.dart';
+import 'package:flutter_application_1/database/storage/favorite_service.dart';
 import 'package:flutter_application_1/database/storage/track.dart';
+import 'package:flutter_application_1/database/storage/track_list_item.dart';
 import 'package:flutter_application_1/database/storage/track_service.dart';
 import 'package:flutter_application_1/drawer.dart';
 import 'package:flutter_application_1/main.dart';
@@ -21,6 +23,7 @@ class _HomePageState extends State<HomePage> {
   AuthService authService = AuthService();
   final SupabaseClient supabase = Supabase.instance.client;
   final TrackService trackService = TrackService();
+  final FavoriteService _favoriteService = FavoriteService();
   List<Track> tracks = [];
   List<Track> filteredTracks = [];
   Track? selectedTrack;
@@ -30,6 +33,7 @@ class _HomePageState extends State<HomePage> {
   String searchQuery = '';
   List<Map<String, dynamic>> authors = [];
   int? selectedAuthorId;
+  String? _currentUserId;
 
 Future<void> _fetchTracks() async {
     try {
@@ -63,7 +67,17 @@ Future<void> _fetchTracks() async {
     super.initState();
     _fetchTracks();
     _fetchAuthors();
+    _getCurrentUser();
   }
+
+  Future<void> _getCurrentUser() async {
+  final user = Supabase.instance.client.auth.currentUser;
+  if (user != null) {
+    setState(() {
+      _currentUserId = user.id;
+    });
+  }
+}
 
   Future<void> _fetchAuthors() async {
     try {
@@ -193,6 +207,54 @@ Future<void> _fetchTracks() async {
     });
   }
 
+  Future<void> _playTrack(Track track) async {
+    final authorName = await _getAuthorName(track.authorId);
+    
+    if (mounted) {
+      setState(() {
+        currentTrack = track;
+      });
+      
+      Navigator.push(
+        context,
+        CupertinoPageRoute(
+          builder: (_) => PlayerPage(
+            nameSound: track.name,
+            author: authorName,
+            urlMusic: track.musicUrl,
+            urlPhoto: track.imageUrl,
+            onBack: resetSelectedTrack,
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<String> _getAuthorName(int authorId) async {
+    final response = await supabase
+        .from('author')
+        .select('name')
+        .eq('id', authorId)
+        .single();
+    
+    return response['name'] as String;
+  }
+
+  Future<void> _toggleFavorite(int trackId, bool isCurrentlyFavorite) async {
+    if (_currentUserId == null) return;
+    
+    try {
+      if (isCurrentlyFavorite) {
+        await _favoriteService.removeFavorite(_currentUserId!, trackId);
+      } else {
+        await _favoriteService.addFavorite(_currentUserId!, trackId);
+      }
+      setState(() {});
+    } catch (e) {
+      print('Error toggling favorite: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GradientBackground(
@@ -260,26 +322,9 @@ Future<void> _fetchTracks() async {
                     onChanged: _filterTracks,
                   ),
                 ),
-                // Раздел "Ваши плейлисты"
-                // Text(
-                //   'Ваши плейлисты',
-                //   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                // ),
-                // SizedBox(height: 10),
-                // _buildHorizontalScrollableImages(2, isCircle: false),
-                // SizedBox(height: 20),
       
-                // Раздел "Популярные исполнители"
                 _buildAuthorsList(),
-                // Text(
-                //   'Популярные исполнители',
-                //   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                // ),
-                // SizedBox(height: 10),
-                // _buildHorizontalScrollableImages(1, isCircle: true),
-                // SizedBox(height: 20),
-      
-                // Раздел "Треки"
+
                 Text(
                   'Треки',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -345,22 +390,23 @@ Widget _buildTracksList() {
   }
     
     return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: filteredTracks.length,
-      itemBuilder: (ctx, index) {
-        final track = filteredTracks[index];
-        return ListTile(
-          leading: track.imageUrl.isNotEmpty
-              ? Image.network(track.imageUrl, width: 50, height: 50)
-              : const Icon(Icons.music_note),
-          title: Text(track.name),
-          subtitle: FutureBuilder(
-            future: _getAuthorName(track.authorId),
-            builder: (ctx, snapshot) {
-              return Text(snapshot.data ?? 'Unknown Artist');
-            },
-          ),
+    shrinkWrap: true,
+    physics: const NeverScrollableScrollPhysics(),
+    itemCount: filteredTracks.length,
+    itemBuilder: (ctx, index) {
+      final track = filteredTracks[index];
+      return FutureBuilder(
+        future: _currentUserId != null 
+            ? _favoriteService.isFavorite(_currentUserId!, track.id)
+            : Future.value(false),
+        builder: (ctx, snapshot) {
+          final isFavorite = snapshot.data ?? false;
+          return TrackListItem(
+          track: track,
+          isFavorite: isFavorite,
+          onToggleFavorite: _currentUserId != null
+              ? () => _toggleFavorite(track.id, isFavorite)
+              : null,
           onTap: () {
             setState(() {
               selectedTrack = track;
@@ -369,41 +415,9 @@ Widget _buildTracksList() {
         );
       },
     );
-  }
+  },
+);
 
-  Future<String> _getAuthorName(int authorId) async {
-    final response = await supabase
-        .from('author')
-        .select('name')
-        .eq('id', authorId)
-        .single();
-    
-    return response['name'] as String;
-  }
-
-Future<void> _playTrack(Track track) async {
-  final authorName = await TrackService().getAuthorName(track.authorId);
-  
-  if (mounted) {
-      setState(() {
-        currentTrack = track;
-      });
-      
-      Navigator.push(
-        context,
-        CupertinoPageRoute(
-          builder: (_) => PlayerPage(
-            nameSound: track.name,
-            author: authorName,
-            urlMusic: track.musicUrl,
-            urlPhoto: track.imageUrl,
-            onBack: resetSelectedTrack,
-          ),
-        ),
-      );
-    }
-  }
-  
   //Метод для создания прокручиваемых строк с изображениями
   // Widget _buildHorizontalScrollableImages(int numberOfRows, {bool isCircle = false, bool isTracks = false}) {
   //   return Column(
@@ -441,4 +455,4 @@ Future<void> _playTrack(Track track) async {
   //     }),
   //   );
   // }
-}
+}}

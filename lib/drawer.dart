@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/favorite_tracks.dart';
 import 'package:flutter_application_1/playlist.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -74,9 +75,15 @@ class _DrawerPageState extends State<DrawerPage> {
             ListTile(
               iconColor: Colors.red,
               textColor: Colors.white,
-              title: Text("Моя музыка"),
+              title: Text("Избранное"),
               leading: Icon(Icons.music_note),
-              onTap: () {},
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const FavoriteTracksPage()),
+                );
+              },
             ),
             ListTile(
               iconColor: Colors.yellow,

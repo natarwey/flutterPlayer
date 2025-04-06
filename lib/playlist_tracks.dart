@@ -5,6 +5,7 @@ import 'package:flutter_application_1/database/storage/track.dart';
 import 'package:flutter_application_1/main.dart';
 import 'package:flutter_application_1/music/player.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_application_1/database/storage/favorite_service.dart';
 
 class PlaylistTracksPage extends StatefulWidget {
   final int playlistId;
@@ -19,14 +20,41 @@ class PlaylistTracksPage extends StatefulWidget {
 
 class _PlaylistTracksPageState extends State<PlaylistTracksPage> {
   final PlaylistService _playlistService = PlaylistService();
+  final FavoriteService _favoriteService = FavoriteService();
   List<Track> tracks = [];
   bool isLoading = true;
   final Map<int, String> _authorNames = {};
+  String? _currentUserId; 
 
   @override
   void initState() {
     super.initState();
+    _getCurrentUser();
     _loadTracks();
+  }
+
+  Future<void> _getCurrentUser() async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user != null) {
+      setState(() {
+        _currentUserId = user.id;
+      });
+    }
+  }
+
+  Future<void> _toggleFavorite(int trackId, bool isCurrentlyFavorite) async {
+    if (_currentUserId == null) return;
+    
+    try {
+      if (isCurrentlyFavorite) {
+        await _favoriteService.removeFavorite(_currentUserId!, trackId);
+      } else {
+        await _favoriteService.addFavorite(_currentUserId!, trackId);
+      }
+      setState(() {});
+    } catch (e) {
+      print('Error toggling favorite: $e');
+    }
   }
 
   Future<void> _loadTracks() async {
@@ -63,7 +91,7 @@ class _PlaylistTracksPageState extends State<PlaylistTracksPage> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          title: const Text('Треки плейлиста'),
+          title: Text("Треки плейлиста" + " " + widget.playlistName),
         ),
         body: isLoading
             ? const Center(child: CircularProgressIndicator())
@@ -75,12 +103,28 @@ class _PlaylistTracksPageState extends State<PlaylistTracksPage> {
                       final track = tracks[index];
                       final authorName = _authorNames[track.authorId] ?? 'Unknown Artist';
 
-                      return ListTile(
-                        leading: track.imageUrl.isNotEmpty
-                            ? Image.network(track.imageUrl, width: 50, height: 50)
-                            : const Icon(Icons.music_note),
-                        title: Text(track.name),
-                        subtitle: Text(authorName),
+                      return FutureBuilder(
+                        future: _currentUserId != null 
+                            ? _favoriteService.isFavorite(_currentUserId!, track.id)
+                            : Future.value(false),
+                        builder: (ctx, snapshot) {
+                          final isFavorite = snapshot.data ?? false;
+                          
+                          return ListTile(
+                            leading: track.imageUrl.isNotEmpty
+                                ? Image.network(track.imageUrl, width: 50, height: 50)
+                                : const Icon(Icons.music_note),
+                            title: Text(track.name),
+                            subtitle: Text(authorName),
+                            trailing: IconButton(
+                              icon: Icon(
+                                isFavorite ? Icons.favorite : Icons.favorite_border,
+                                color: isFavorite ? Colors.red : Colors.white,
+                              ),
+                              onPressed: _currentUserId != null
+                                  ? () => _toggleFavorite(track.id, isFavorite)
+                                  : null,
+                            ),
                         onTap: () {
                           Navigator.push(
                             context,
@@ -92,7 +136,9 @@ class _PlaylistTracksPageState extends State<PlaylistTracksPage> {
                                 urlPhoto: track.imageUrl,
                                 onBack: () {},
                               ),
-                            ),
+                                ),
+                              );
+                            },
                           );
                         },
                       );

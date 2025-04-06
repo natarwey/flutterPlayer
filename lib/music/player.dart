@@ -101,6 +101,11 @@ class _PlayerPageState extends State<PlayerPage> {
             colors: [Colors.blue, Colors.blueGrey],
           ),
         ),
+        child: Stack(  // Заменяем Column на Stack
+        children: [
+          // Основной контент (центрированный)
+          Center(
+            child: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -114,6 +119,8 @@ class _PlayerPageState extends State<PlayerPage> {
                 ),
               ),
 
+            
+            
             // Обложка трека
             if (widget.urlPhoto != null)
               ClipRRect(
@@ -216,20 +223,29 @@ class _PlayerPageState extends State<PlayerPage> {
                     seconds: (_position.inSeconds + 10)
                       .clamp(0, _duration.inSeconds)
                   )),
-                ),
-              ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-            IconButton(
+          ),
+
+          // Кнопка "назад" в левом верхнем углу
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 10,
+            left: 10,
+            child: IconButton(
               icon: const Icon(Icons.arrow_back, size: 40),
               color: Colors.white,
               onPressed: _goBack,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
-}
+    ),
+  );
+}}
 
 extension DurationFormatter on Duration {
   String format() {

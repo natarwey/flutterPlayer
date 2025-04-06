@@ -6,6 +6,7 @@ class Track {
   final int genreId;
   final int authorId;
   final DateTime createdAt;
+  final String? artistName;
 
   Track({
     required this.id,
@@ -15,6 +16,7 @@ class Track {
     required this.genreId,
     required this.authorId,
     required this.createdAt,
+    this.artistName,
   });
 
   factory Track.fromMap(Map<String, dynamic> map) {
@@ -26,6 +28,7 @@ class Track {
       genreId: map['genre_id'] as int,
       authorId: map['author_id'] as int,
       createdAt: DateTime.parse(map['created_at'] as String),
+      artistName: map['artist_name'] as String?,
     );
   }
 }
