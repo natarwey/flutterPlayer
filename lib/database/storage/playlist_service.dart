@@ -22,4 +22,21 @@ class PlaylistService {
     
     return response.map<Track>((t) => Track.fromMap(t['track'])).toList();
   }
+
+  Future<void> addTrackToPlaylist(int playlistId, int trackId) async {
+    await supabase
+        .from('play_list')
+        .insert({
+          'list_id': playlistId,
+          'track_id': trackId,
+        });
+  }
+
+  Future<void> removeTrackFromPlaylist(int playlistId, int trackId) async {
+    await supabase
+        .from('play_list')
+        .delete()
+        .eq('list_id', playlistId)
+        .eq('track_id', trackId);
+  }
 }

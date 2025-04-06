@@ -57,12 +57,12 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
                         leading: playlist.coverUrl != null
                             ? Image.network(playlist.coverUrl!, width: 50, height: 50)
                             : const Icon(Icons.playlist_play, size: 50),
-                        title: Text(playlist.name),
+                        title: Text(playlist.listName),
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => PlaylistTracksPage(playlistId: playlist.id, playlistName: playlist.name),
+                              builder: (context) => PlaylistTracksPage(playlistId: playlist.id, playlistName: playlist.listName),
                             ),
                           );
                         },

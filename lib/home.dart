@@ -8,8 +8,6 @@ import 'package:flutter_application_1/database/storage/track_service.dart';
 import 'package:flutter_application_1/drawer.dart';
 import 'package:flutter_application_1/main.dart';
 import 'package:flutter_application_1/music/player.dart';
-//import 'package:shared_preferences/shared_preferences.dart';
-//import 'package:flutter_application_1/profile.dart'; 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomePage extends StatefulWidget {
@@ -407,6 +405,7 @@ Widget _buildTracksList() {
           onToggleFavorite: _currentUserId != null
               ? () => _toggleFavorite(track.id, isFavorite)
               : null,
+          onAddToPlaylist: _currentUserId != null ? () {} : null,
           onTap: () {
             setState(() {
               selectedTrack = track;

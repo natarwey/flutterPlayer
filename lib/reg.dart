@@ -186,16 +186,6 @@ class _RegPageState extends State<RegPage> {
                   child: Text("Создать аккаунт"),
                 ),
               ),
-              // SizedBox(height: MediaQuery.of(context).size.height * 0.015),
-              // SizedBox(
-              //   width: MediaQuery.of(context).size.width * 0.6,
-              //   child: OutlinedButton(
-              //     onPressed: () {
-              //       Navigator.popAndPushNamed(context, '/home');
-              //     },
-              //     child: Text("Аккаунт уже есть"),
-              //   ),
-              // ),
               SizedBox(height: MediaQuery.of(context).size.height * 0.015),
               SizedBox(
                 width: MediaQuery.of(context).size.width * 0.6,

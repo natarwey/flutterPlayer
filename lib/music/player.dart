@@ -101,9 +101,8 @@ class _PlayerPageState extends State<PlayerPage> {
             colors: [Colors.blue, Colors.blueGrey],
           ),
         ),
-        child: Stack(  // Заменяем Column на Stack
+        child: Stack(
         children: [
-          // Основной контент (центрированный)
           Center(
             child: SingleChildScrollView(
         child: Column(
@@ -119,8 +118,6 @@ class _PlayerPageState extends State<PlayerPage> {
                 ),
               ),
 
-            
-            
             // Обложка трека
             if (widget.urlPhoto != null)
               ClipRRect(
@@ -231,7 +228,7 @@ class _PlayerPageState extends State<PlayerPage> {
             ),
           ),
 
-          // Кнопка "назад" в левом верхнем углу
+          // Кнопка "назад"
           Positioned(
             top: MediaQuery.of(context).padding.top + 10,
             left: 10,

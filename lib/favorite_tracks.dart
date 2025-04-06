@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/database/storage/favorite_service.dart';
 import 'package:flutter_application_1/database/storage/track.dart';
+import 'package:flutter_application_1/database/storage/track_list_item.dart';
 import 'package:flutter_application_1/database/storage/track_service.dart';
 import 'package:flutter_application_1/main.dart';
 import 'package:flutter_application_1/music/player.dart';
@@ -21,6 +22,7 @@ class _FavoriteTracksPageState extends State<FavoriteTracksPage> {
   List<Track> tracks = [];
   bool isLoading = true;
   String? userId;
+  String? _currentUserId;
 
   @override
   void initState() {
@@ -94,37 +96,28 @@ class _FavoriteTracksPageState extends State<FavoriteTracksPage> {
                       final track = tracks[index];
                       final authorName = _authorNames[track.authorId] ?? 'Unknown Artist';
 
-                      return ListTile(
-                        leading: track.imageUrl.isNotEmpty
-                            ? Image.network(track.imageUrl, width: 50, height: 50)
-                            : const Icon(Icons.music_note),
-                        title: Text(track.name),
-                        subtitle: Text(authorName),
-                        trailing: IconButton(
-                          icon: const Icon(
-                            Icons.favorite,
-                            color: Colors.red,
-                          ),
-                          onPressed: () => _removeFavorite(track.id),
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => PlayerPage(
-                                nameSound: track.name,
-                                author: authorName,
-                                urlMusic: track.musicUrl,
-                                urlPhoto: track.imageUrl,
-                                onBack: () {},
-                              ),
+                      return TrackListItem(
+                      track: track,
+                      isFavorite: true,
+                      onToggleFavorite: () => _removeFavorite(track.id),
+                      onAddToPlaylist: _currentUserId != null ? () {} : null,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => PlayerPage(
+                              nameSound: track.name,
+                              author: authorName,
+                              urlMusic: track.musicUrl,
+                              urlPhoto: track.imageUrl,
+                              onBack: () {},
                             ),
-                          );
-                        },
-                      );
-                    },
-                  ),
-      ),
-    );
-  }
-}
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+    ),
+  );
+}}

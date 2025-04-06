@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/database/storage/playlist_service.dart';
 import 'package:flutter_application_1/database/storage/track.dart';
+import 'package:flutter_application_1/database/storage/track_list_item.dart';
 import 'package:flutter_application_1/main.dart';
 import 'package:flutter_application_1/music/player.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -110,43 +111,35 @@ class _PlaylistTracksPageState extends State<PlaylistTracksPage> {
                         builder: (ctx, snapshot) {
                           final isFavorite = snapshot.data ?? false;
                           
-                          return ListTile(
-                            leading: track.imageUrl.isNotEmpty
-                                ? Image.network(track.imageUrl, width: 50, height: 50)
-                                : const Icon(Icons.music_note),
-                            title: Text(track.name),
-                            subtitle: Text(authorName),
-                            trailing: IconButton(
-                              icon: Icon(
-                                isFavorite ? Icons.favorite : Icons.favorite_border,
-                                color: isFavorite ? Colors.red : Colors.white,
-                              ),
-                              onPressed: _currentUserId != null
-                                  ? () => _toggleFavorite(track.id, isFavorite)
-                                  : null,
-                            ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            CupertinoPageRoute(
-                              builder: (_) => PlayerPage(
-                                nameSound: track.name,
-                                author: authorName,
-                                urlMusic: track.musicUrl,
-                                urlPhoto: track.imageUrl,
-                                onBack: () {},
-                              ),
+                          return TrackListItem(
+                          track: track,
+                          isFavorite: isFavorite,
+                          onToggleFavorite: _currentUserId != null
+                              ? () => _toggleFavorite(track.id, isFavorite)
+                              : null,
+                          onAddToPlaylist: _currentUserId != null ? () {} : null,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                builder: (_) => PlayerPage(
+                                  nameSound: track.name,
+                                  author: authorName,
+                                  urlMusic: track.musicUrl,
+                                  urlPhoto: track.imageUrl,
+                                  onBack: () {},
                                 ),
-                              );
-                            },
-                          );
-                        },
-                      );
-                    },
-                  ),
-      ),
-    );
-  }
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    );
+                  },
+                ),
+    ),
+  );
+}
 
   Future<String> _getAuthorName(int authorId) async {
     final response = await Supabase.instance.client
