@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/app_scaffold.dart';
 import 'package:flutter_application_1/database/storage/favorite_service.dart';
 import 'package:flutter_application_1/database/storage/track.dart';
 import 'package:flutter_application_1/database/storage/track_list_item.dart';
@@ -80,12 +81,8 @@ class _FavoriteTracksPageState extends State<FavoriteTracksPage> {
 
   @override
   Widget build(BuildContext context) {
-    return GradientBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          title: const Text('Избранные'),
-        ),
+    return AppScaffold(
+    title: 'Избранное',
         body: isLoading
             ? const Center(child: CircularProgressIndicator())
             : tracks.isEmpty
@@ -112,12 +109,11 @@ class _FavoriteTracksPageState extends State<FavoriteTracksPage> {
                               urlPhoto: track.imageUrl,
                               onBack: () {},
                             ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-    ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
   );
 }}

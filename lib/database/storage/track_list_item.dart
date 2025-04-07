@@ -84,7 +84,9 @@ class TrackListItem extends StatelessWidget {
                                     containsTrack
                                         ? 'Удалено из ${playlist.listName}'
                                         : 'Добавлено в ${playlist.listName}',
+                                    style: TextStyle(color: Colors.black),
                                   ),
+                                  backgroundColor: Colors.white,
                                 ),
                               );
                               Navigator.pop(context);

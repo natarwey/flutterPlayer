@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/app_scaffold.dart';
 import 'package:flutter_application_1/database/storage/playlist.dart';
 import 'package:flutter_application_1/database/storage/playlist_service.dart';
 import 'package:flutter_application_1/main.dart';
@@ -39,12 +40,8 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return GradientBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          title: const Text('Плейлисты'),
-        ),
+    return AppScaffold(
+    title: 'Плейлисты',
         body: isLoading
             ? const Center(child: CircularProgressIndicator())
             : playlists.isEmpty
@@ -62,14 +59,15 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => PlaylistTracksPage(playlistId: playlist.id, playlistName: playlist.listName),
-                            ),
-                          );
-                        },
+                              builder: (context) => PlaylistTracksPage(
+                                playlistId: playlist.id,
+                                playlistName: playlist.listName
+                              ),
+                        ),
                       );
                     },
-                  ),
-      ),
-    );
-  }
-}
+                  );
+                },
+              ),
+  );
+}}

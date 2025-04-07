@@ -17,7 +17,7 @@ class RecoveryPage extends StatelessWidget {
           title: Text("Восстановление пароля"),
           leading: IconButton(
             onPressed: (){
-              Navigator.popAndPushNamed(context, '/');
+              Navigator.popAndPushNamed(context, '/auth');
             }, 
             icon:Icon(
               CupertinoIcons.back,

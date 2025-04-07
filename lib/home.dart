@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/app_scaffold.dart';
 import 'package:flutter_application_1/database/auth.dart';
 import 'package:flutter_application_1/database/storage/favorite_service.dart';
 import 'package:flutter_application_1/database/storage/track.dart';
@@ -254,126 +255,77 @@ Future<void> _fetchTracks() async {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return GradientBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        drawer: DrawerPage(),
-        appBar: AppBar(
-          title: Text("Home"),
-        ),
-      
-        bottomNavigationBar: selectedTrack != null
-            ? GestureDetector(
-                onTap: () {
-                  if (selectedTrack != null) {
-                    _playTrack(selectedTrack!);
-                  }
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: ListTile(
-                    leading: selectedTrack!.imageUrl.isNotEmpty
-                        ? Image.network(
-                            selectedTrack!.imageUrl, 
-                            width: 40, 
-                            height: 40,
-                          )
-                        : const Icon(Icons.music_note),
-                    title: Text(selectedTrack!.name),
-                    subtitle: FutureBuilder(
-                      future: _getAuthorName(selectedTrack!.authorId),
-                      builder: (ctx, snapshot) {
-                        return Text(snapshot.data ?? 'Unknown Artist');
-                      },
-                    ),
-                    trailing: const Icon(Icons.play_arrow),
+Widget build(BuildContext context) {
+  return AppScaffold(
+    title: "Home",
+    drawer: DrawerPage(),
+    body: SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: TextField(
+                cursorColor: Colors.white,
+                decoration: InputDecoration(
+                  hintText: 'Поиск...',
+                  hintStyle: TextStyle(color: Colors.white70),
+                  prefixIcon: Icon(Icons.search, color: Colors.white),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide(color: Colors.white54),
                   ),
                 ),
-              )
-            : null,
-        
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: TextField(
-                    cursorColor: Colors.white,
-                    decoration: InputDecoration(
-                      hintText: 'Поиск...',
-                      hintStyle: TextStyle(color: Colors.white70),
-                      prefixIcon: Icon(Icons.search, color: Colors.white),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide(color: Colors.white),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide(color: Colors.white54),
-                      ),
-                    ),
-                    style: TextStyle(color: Colors.white),
-                    onChanged: _filterTracks,
-                  ),
-                ),
-      
-                _buildAuthorsList(),
-
-                Text(
-                  'Треки',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 10),
-                _buildTracksList(),
-              ],
+                style: TextStyle(color: Colors.white),
+                onChanged: _filterTracks,
+              ),
             ),
-          ),
+            _buildAuthorsList(),
+            Text(
+              'Треки',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 10),
+            _buildTracksList(),
+          ],
         ),
-      
-        //Нижняя панель с кнопками "Назад", "Домой" и "Вперед"
-        // bottomNavigationBar: BottomAppBar(
-        //   color: Colors.white,
-        //   child: Row(
-        //     mainAxisAlignment: MainAxisAlignment.spaceAround,
-        //     children: [
-        //       IconButton(
-        //         icon: Icon(Icons.arrow_back),
-        //         onPressed: () {
-        //           Navigator.pop(context); // Возврат на предыдущую страницу
-        //         },
-        //       ),
-        //       IconButton(
-        //         icon: Icon(Icons.home),
-        //         onPressed: () {
-        //           // Переход на главную страницу
-        //           Navigator.pushAndRemoveUntil(
-        //             context,
-        //             MaterialPageRoute(builder: (context) => HomePage()),
-        //             (Route<dynamic> route) => false,
-        //           );
-        //         },
-        //       ),
-        //       IconButton(
-        //         icon: Icon(Icons.arrow_forward),
-        //         onPressed: () {
-        //           // Переход на следующую страницу
-        //           Navigator.push(
-        //             context,
-        //             MaterialPageRoute(builder: (context) => HomePage()),
-        //           );
-        //         },
-        //       ),
-        //     ],
-        //   ),
-        // ),
       ),
-    );
-  }
-
+    ),
+    floatingPlayer: selectedTrack != null
+        ? GestureDetector(
+            onTap: () => _playTrack(selectedTrack!),
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.7),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ListTile(
+                leading: selectedTrack!.imageUrl.isNotEmpty
+                    ? Image.network(selectedTrack!.imageUrl, width: 40, height: 40)
+                    : Icon(Icons.music_note, color: Colors.white),
+                title: Text(selectedTrack!.name, style: TextStyle(color: Colors.white)),
+                subtitle: FutureBuilder(
+                  future: _getAuthorName(selectedTrack!.authorId),
+                  builder: (ctx, snapshot) => Text(
+                    snapshot.data ?? 'Unknown Artist',
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                ),
+                trailing: Icon(Icons.play_arrow, color: Colors.white),
+              ),
+            ),
+          )
+        : null,
+  );
+}
+      
 Widget _buildTracksList() {
     if (isLoading) return const Center(child: CircularProgressIndicator());
     if (errorMessage != null) return Center(child: Text(errorMessage!));

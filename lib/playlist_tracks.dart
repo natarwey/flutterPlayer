@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/app_scaffold.dart';
 import 'package:flutter_application_1/database/storage/playlist_service.dart';
 import 'package:flutter_application_1/database/storage/track.dart';
 import 'package:flutter_application_1/database/storage/track_list_item.dart';
@@ -88,12 +89,8 @@ class _PlaylistTracksPageState extends State<PlaylistTracksPage> {
 
   @override
   Widget build(BuildContext context) {
-    return GradientBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          title: Text("Треки плейлиста" + " " + widget.playlistName),
-        ),
+    return AppScaffold(
+    title: "Треки плейлиста" + " " + widget.playlistName,
         body: isLoading
             ? const Center(child: CircularProgressIndicator())
             : tracks.isEmpty
@@ -129,15 +126,14 @@ class _PlaylistTracksPageState extends State<PlaylistTracksPage> {
                                   urlPhoto: track.imageUrl,
                                   onBack: () {},
                                 ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
-                ),
-    ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
   );
 }
 
