@@ -223,6 +223,8 @@ Future<void> _fetchTracks() async {
             urlMusic: track.musicUrl,
             urlPhoto: track.imageUrl,
             onBack: resetSelectedTrack,
+            playlist: filteredTracks,
+            currentTrackIndex: filteredTracks.indexWhere((t) => t.id == track.id),
           ),
         ),
       );

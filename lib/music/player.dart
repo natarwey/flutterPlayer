@@ -1,5 +1,7 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/database/storage/track.dart';
 
 class PlayerPage extends StatefulWidget {
   final String urlMusic;
@@ -7,6 +9,8 @@ class PlayerPage extends StatefulWidget {
   final String nameSound;
   final String author;
   final Function onBack;
+  final List<Track>? playlist;
+  final int? currentTrackIndex;
 
   const PlayerPage({
     super.key,
@@ -15,6 +19,8 @@ class PlayerPage extends StatefulWidget {
     required this.author,
     this.urlPhoto,
     required this.onBack,
+    this.playlist,
+    this.currentTrackIndex,
   });
 
   @override
@@ -42,9 +48,42 @@ class _PlayerPageState extends State<PlayerPage> {
         setState(() {
           _isPlaying = state == PlayerState.playing;
         });
+      })
+      ..onPlayerComplete.listen((_) {
+        _playNextTrack();
       });
 
     _initAudio();
+  }
+
+  Future<void> _playNextTrack() async {
+    if (widget.playlist == null || widget.currentTrackIndex == null) return;
+    
+    final nextIndex = widget.currentTrackIndex! + 1;
+    if (nextIndex < widget.playlist!.length) {
+      final nextTrack = widget.playlist![nextIndex];
+      
+      setState(() {
+        _isPlaying = false;
+        _position = Duration.zero;
+        _duration = Duration.zero;
+      });
+
+      Navigator.pushReplacement(
+        context,
+        CupertinoPageRoute(
+          builder: (_) => PlayerPage(
+            urlMusic: nextTrack.musicUrl,
+            nameSound: nextTrack.name,
+            author: nextTrack.artistName ?? 'Unknown Artist',
+            urlPhoto: nextTrack.imageUrl,
+            onBack: widget.onBack,
+            playlist: widget.playlist,
+            currentTrackIndex: nextIndex,
+          ),
+        ),
+      );
+    }
   }
 
   Future<void> _initAudio() async {
@@ -233,7 +272,7 @@ class _PlayerPageState extends State<PlayerPage> {
             top: MediaQuery.of(context).padding.top + 10,
             left: 10,
             child: IconButton(
-              icon: const Icon(Icons.arrow_back, size: 40),
+              icon: const Icon(CupertinoIcons.back, size: 40),
               color: Colors.white,
               onPressed: _goBack,
             ),

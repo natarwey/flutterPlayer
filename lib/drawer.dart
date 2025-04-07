@@ -62,11 +62,10 @@ class _DrawerPageState extends State<DrawerPage> {
                 ),
                 otherAccountsPictures: [
                   IconButton(
+                    icon: Icon(Icons.logout, color: Colors.white),
                     onPressed: () {
                       Navigator.popAndPushNamed(context, '/auth');
                     },
-                    icon: Icon(Icons.logout),
-                    color: Colors.white,
                     tooltip: 'Logout',
                   ),
                 ],
