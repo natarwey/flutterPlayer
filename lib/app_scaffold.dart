@@ -9,6 +9,7 @@ class AppScaffold extends StatelessWidget {
   final Widget? customBottomNavBar;
   final Widget? drawer;
   final Widget? floatingPlayer;
+  final bool isHomePage;
 
   const AppScaffold({
     super.key,
@@ -18,6 +19,7 @@ class AppScaffold extends StatelessWidget {
     this.customBottomNavBar,
     this.drawer,
     this.floatingPlayer,
+    this.isHomePage = false,
   });
 
   @override
@@ -29,7 +31,24 @@ class AppScaffold extends StatelessWidget {
             backgroundColor: Colors.transparent,
             appBar: title != null 
                 ? AppBar(
-                  title: Text(title!),backgroundColor: Colors.transparent)
+                  title: Text(title!, style: TextStyle(color: Colors.white)),
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                    iconTheme: IconThemeData(color: Colors.white),
+                    leading: isHomePage
+                        ? Builder(
+                          builder: (context) {
+                            return IconButton(
+                                icon: Icon(Icons.menu, color: Colors.white),
+                                onPressed: () => Scaffold.of(context).openDrawer(),
+                              );
+                          }
+                        )
+                        : IconButton(
+                            icon: Icon(Icons.arrow_back, color: Colors.white),
+                            onPressed: () => Navigator.maybePop(context),
+                          ),
+                  )
                 : null,
             body: body,
             drawer: drawer,

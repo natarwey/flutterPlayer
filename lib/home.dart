@@ -260,6 +260,7 @@ Future<void> _fetchTracks() async {
 Widget build(BuildContext context) {
   return AppScaffold(
     title: "Home",
+    isHomePage: true,
     drawer: DrawerPage(),
     body: SingleChildScrollView(
       child: Padding(
