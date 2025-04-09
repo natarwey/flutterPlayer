@@ -34,7 +34,7 @@ class _HomePageState extends State<HomePage> {
   int? selectedAuthorId;
   String? _currentUserId;
 
-Future<void> _fetchTracks() async {
+  Future<void> _fetchTracks() async {
     try {
       setState(() {
         isLoading = true;
@@ -70,20 +70,20 @@ Future<void> _fetchTracks() async {
   }
 
   Future<void> _getCurrentUser() async {
-  final user = Supabase.instance.client.auth.currentUser;
-  if (user != null) {
-    setState(() {
-      _currentUserId = user.id;
-    });
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user != null) {
+      setState(() {
+        _currentUserId = user.id;
+      });
+    }
   }
-}
 
   Future<void> _fetchAuthors() async {
     try {
       final response = await supabase
           .from('author')
           .select('id, name, image_url');
-      
+
       setState(() {
         authors = response;
       });
@@ -98,7 +98,8 @@ Future<void> _fetchTracks() async {
       if (authorId == null) {
         filteredTracks = List.from(tracks);
       } else {
-        filteredTracks = tracks.where((track) => track.authorId == authorId).toList();
+        filteredTracks =
+            tracks.where((track) => track.authorId == authorId).toList();
       }
     });
   }
@@ -145,28 +146,32 @@ Future<void> _fetchTracks() async {
                         height: 70,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: selectedAuthorId == author['id'] 
-                              ? Colors.blue 
-                              : Colors.grey[300],
-                          image: author['image_url'] != null 
-                              ? DecorationImage(
-                                  image: NetworkImage(author['image_url']),
-                                  fit: BoxFit.cover,
-                                )
-                              : null,
+                          color:
+                              selectedAuthorId == author['id']
+                                  ? Colors.blue
+                                  : Colors.grey[300],
+                          image:
+                              author['image_url'] != null
+                                  ? DecorationImage(
+                                    image: NetworkImage(author['image_url']),
+                                    fit: BoxFit.cover,
+                                  )
+                                  : null,
                         ),
-                        child: author['image_url'] == null
-                            ? Icon(Icons.person, size: 40)
-                            : null,
+                        child:
+                            author['image_url'] == null
+                                ? Icon(Icons.person, size: 40)
+                                : null,
                       ),
                       SizedBox(height: 5),
                       Text(
                         author['name'],
                         style: TextStyle(
                           fontSize: 12,
-                          color: selectedAuthorId == author['id']
-                              ? Colors.white
-                              : Colors.white,
+                          color:
+                              selectedAuthorId == author['id']
+                                  ? Colors.white
+                                  : Colors.white,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -187,15 +192,21 @@ Future<void> _fetchTracks() async {
     setState(() {
       searchQuery = query;
       if (query.isEmpty) {
-        filteredTracks = selectedAuthorId == null 
-            ? List.from(tracks)
-            : tracks.where((t) => t.authorId == selectedAuthorId).toList();
+        filteredTracks =
+            selectedAuthorId == null
+                ? List.from(tracks)
+                : tracks.where((t) => t.authorId == selectedAuthorId).toList();
       } else {
-        filteredTracks = tracks.where((track) {
-          final matchesSearch = track.name.toLowerCase().contains(query.toLowerCase());
-          final matchesAuthor = selectedAuthorId == null || track.authorId == selectedAuthorId;
-          return matchesSearch && matchesAuthor;
-        }).toList();
+        filteredTracks =
+            tracks.where((track) {
+              final matchesSearch = track.name.toLowerCase().contains(
+                query.toLowerCase(),
+              );
+              final matchesAuthor =
+                  selectedAuthorId == null ||
+                  track.authorId == selectedAuthorId;
+              return matchesSearch && matchesAuthor;
+            }).toList();
       }
     });
   }
@@ -208,42 +219,46 @@ Future<void> _fetchTracks() async {
 
   Future<void> _playTrack(Track track) async {
     final authorName = await _getAuthorName(track.authorId);
-    
+
     if (mounted) {
       setState(() {
         currentTrack = track;
       });
-      
+
       Navigator.push(
         context,
         CupertinoPageRoute(
-          builder: (_) => PlayerPage(
-            nameSound: track.name,
-            author: authorName,
-            urlMusic: track.musicUrl,
-            urlPhoto: track.imageUrl,
-            onBack: resetSelectedTrack,
-            playlist: filteredTracks,
-            currentTrackIndex: filteredTracks.indexWhere((t) => t.id == track.id),
-          ),
+          builder:
+              (_) => PlayerPage(
+                nameSound: track.name,
+                author: authorName,
+                urlMusic: track.musicUrl,
+                urlPhoto: track.imageUrl,
+                onBack: resetSelectedTrack,
+                playlist: filteredTracks,
+                currentTrackIndex: filteredTracks.indexWhere(
+                  (t) => t.id == track.id,
+                ),
+              ),
         ),
       );
     }
   }
 
   Future<String> _getAuthorName(int authorId) async {
-    final response = await supabase
-        .from('author')
-        .select('name')
-        .eq('id', authorId)
-        .single();
-    
+    final response =
+        await supabase
+            .from('author')
+            .select('name')
+            .eq('id', authorId)
+            .single();
+
     return response['name'] as String;
   }
 
   Future<void> _toggleFavorite(int trackId, bool isCurrentlyFavorite) async {
     if (_currentUserId == null) return;
-    
+
     try {
       if (isCurrentlyFavorite) {
         await _favoriteService.removeFavorite(_currentUserId!, trackId);
@@ -257,156 +272,140 @@ Future<void> _fetchTracks() async {
   }
 
   @override
-Widget build(BuildContext context) {
-  return AppScaffold(
-    title: "Home",
-    isHomePage: true,
-    drawer: DrawerPage(),
-    body: SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: TextField(
-                cursorColor: Colors.white,
-                decoration: InputDecoration(
-                  hintText: 'Поиск...',
-                  hintStyle: TextStyle(color: Colors.white70),
-                  prefixIcon: Icon(Icons.search, color: Colors.white),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide(color: Colors.white),
+  Widget build(BuildContext context) {
+    return AppScaffold(
+      title: "Home",
+      isHomePage: true,
+      drawer: DrawerPage(),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: TextField(
+                  cursorColor: Colors.white,
+                  decoration: InputDecoration(
+                    hintText: 'Поиск...',
+                    hintStyle: TextStyle(color: Colors.white70),
+                    prefixIcon: Icon(Icons.search, color: Colors.white),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide(color: Colors.white54),
+                    ),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide(color: Colors.white54),
-                  ),
+                  style: TextStyle(color: Colors.white),
+                  onChanged: _filterTracks,
                 ),
-                style: TextStyle(color: Colors.white),
-                onChanged: _filterTracks,
               ),
-            ),
-            _buildAuthorsList(),
-            Text(
-              'Треки',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            _buildTracksList(),
-          ],
+              _buildAuthorsList(),
+              Text(
+                'Треки',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10),
+              _buildTracksList(),
+            ],
+          ),
         ),
       ),
-    ),
-    floatingPlayer: selectedTrack != null
-        ? GestureDetector(
-            onTap: () => _playTrack(selectedTrack!),
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.7),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: ListTile(
-                leading: selectedTrack!.imageUrl.isNotEmpty
-                    ? Image.network(selectedTrack!.imageUrl, width: 40, height: 40)
-                    : Icon(Icons.music_note, color: Colors.white),
-                title: Text(selectedTrack!.name, style: TextStyle(color: Colors.white)),
-                subtitle: FutureBuilder(
-                  future: _getAuthorName(selectedTrack!.authorId),
-                  builder: (ctx, snapshot) => Text(
-                    snapshot.data ?? 'Unknown Artist',
-                    style: TextStyle(color: Colors.white70),
+      floatingPlayer:
+          selectedTrack != null
+              ? GestureDetector(
+                onTap: () => _playTrack(selectedTrack!),
+                child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.7),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ListTile(
+                    leading:
+                        selectedTrack!.imageUrl.isNotEmpty
+                            ? Image.network(
+                              selectedTrack!.imageUrl,
+                              width: 40,
+                              height: 40,
+                            )
+                            : Icon(Icons.music_note, color: Colors.white),
+                    title: Text(
+                      selectedTrack!.name,
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    subtitle: FutureBuilder(
+                      future: _getAuthorName(selectedTrack!.authorId),
+                      builder:
+                          (ctx, snapshot) => Text(
+                            snapshot.data ?? 'Unknown Artist',
+                            style: TextStyle(color: Colors.white70),
+                          ),
+                    ),
+                    trailing: Icon(Icons.play_arrow, color: Colors.white),
                   ),
                 ),
-                trailing: Icon(Icons.play_arrow, color: Colors.white),
-              ),
-            ),
-          )
-        : null,
-  );
-}
-      
-Widget _buildTracksList() {
+              )
+              : null,
+    );
+  }
+
+  Widget _buildTracksList() {
     if (isLoading) return const Center(child: CircularProgressIndicator());
     if (errorMessage != null) return Center(child: Text(errorMessage!));
 
     if (searchQuery.isNotEmpty && filteredTracks.isEmpty) {
-    return Center(
-      child: Text(
-        'Ничего не найдено по запросу "$searchQuery"',
-        style: TextStyle(color: Colors.white),
-      ),
-    );
-  }
-    
+      return Center(
+        child: Text(
+          'Ничего не найдено по запросу "$searchQuery"',
+          style: TextStyle(color: Colors.white),
+        ),
+      );
+    }
+
     return ListView.builder(
-    shrinkWrap: true,
-    physics: const NeverScrollableScrollPhysics(),
-    itemCount: filteredTracks.length,
-    itemBuilder: (ctx, index) {
-      final track = filteredTracks[index];
-      return FutureBuilder(
-        future: _currentUserId != null 
-            ? _favoriteService.isFavorite(_currentUserId!, track.id)
-            : Future.value(false),
-        builder: (ctx, snapshot) {
-          final isFavorite = snapshot.data ?? false;
-          return TrackListItem(
-          track: track,
-          isFavorite: isFavorite,
-          onToggleFavorite: _currentUserId != null
-              ? () => _toggleFavorite(track.id, isFavorite)
-              : null,
-          onAddToPlaylist: _currentUserId != null ? () {} : null,
-          onTap: () {
-            setState(() {
-              selectedTrack = track;
-            });
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: filteredTracks.length,
+      itemBuilder: (ctx, index) {
+        final track = filteredTracks[index];
+        return FutureBuilder<String>(
+          future: _getAuthorName(track.authorId),
+          builder: (ctx, authorSnapshot) {
+            if (authorSnapshot.connectionState != ConnectionState.done) {
+              return ListTile(
+                title: Text(track.name),
+                subtitle: Text("Загрузка..."),
+              );
+            }
+            final authorName = authorSnapshot.data ?? 'Unknown Artist';
+            return FutureBuilder<bool>(
+              future:
+                  _currentUserId != null
+                      ? _favoriteService.isFavorite(_currentUserId!, track.id)
+                      : Future.value(false),
+              builder: (ctx, favoriteSnapshot) {
+                final isFavorite = favoriteSnapshot.data ?? false;
+                return TrackListItem(
+                  track: track,
+                  authorName: authorName,
+                  isFavorite: isFavorite,
+                  onToggleFavorite:
+                      _currentUserId != null
+                          ? () => _toggleFavorite(track.id, isFavorite)
+                          : null,
+                  onAddToPlaylist: _currentUserId != null ? () {} : null,
+                  onTap: () => setState(() => selectedTrack = track),
+                );
+              },
+            );
           },
         );
       },
     );
-  },
-);
-
-  //Метод для создания прокручиваемых строк с изображениями
-  // Widget _buildHorizontalScrollableImages(int numberOfRows, {bool isCircle = false, bool isTracks = false}) {
-  //   return Column(
-  //     children: List.generate(numberOfRows, (index) {
-  //       return Container(
-  //         height: 100,
-  //         margin: const EdgeInsets.only(bottom: 10),
-  //         child: ListView(
-  //           scrollDirection: Axis.horizontal,
-  //           children: List.generate(10, (index) {
-  //             return Container(
-  //               width: 100,
-  //               height: 100,
-  //               margin: const EdgeInsets.symmetric(horizontal: 8),
-  //               decoration: BoxDecoration(
-  //                 color: Colors.grey[300],
-  //                 borderRadius: isCircle
-  //                     ? BorderRadius.circular(100)
-  //                     : BorderRadius.circular(30),
-  //               ),
-  //               child: Center(
-  //                 child: Text(
-  //                   isCircle
-  //                     ? 'Исполнитель ${index + 1}'
-  //                     : isTracks
-  //                         ? 'Трек ${index + 1}'
-  //                         : 'Плейлист ${index + 1}',
-  //                   style: const TextStyle(fontSize: 13),
-  //                 ),
-  //               ),
-  //             );
-  //           }),
-  //         ),
-  //       );
-  //     }),
-  //   );
-  // }
-}}
+  }
+}

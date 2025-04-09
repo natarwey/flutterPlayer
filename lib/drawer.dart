@@ -48,8 +48,8 @@ class _DrawerPageState extends State<DrawerPage> {
                   borderRadius: BorderRadius.circular(20),
                   color: Colors.white10,
                 ),
-                accountName: Text(docs['name']),
-                accountEmail: Text(docs['email']),
+                accountName: Text(docs?['name'] ?? 'Загрузка...'),
+                accountEmail: Text(docs?['email'] ?? 'example@mail.com'),
                 currentAccountPicture: Container(
                   alignment: Alignment.topCenter,
                   child: CircleAvatar(

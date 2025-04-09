@@ -110,6 +110,7 @@ class _PlaylistTracksPageState extends State<PlaylistTracksPage> {
                           
                           return TrackListItem(
                           track: track,
+                          authorName: authorName,
                           isFavorite: isFavorite,
                           onToggleFavorite: _currentUserId != null
                               ? () => _toggleFavorite(track.id, isFavorite)

@@ -95,6 +95,7 @@ class _FavoriteTracksPageState extends State<FavoriteTracksPage> {
 
                       return TrackListItem(
                       track: track,
+                      authorName: authorName,
                       isFavorite: true,
                       onToggleFavorite: () => _removeFavorite(track.id),
                       onAddToPlaylist: _currentUserId != null ? () {} : null,

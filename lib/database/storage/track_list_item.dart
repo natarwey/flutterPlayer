@@ -5,6 +5,7 @@ import 'package:flutter_application_1/database/storage/track.dart';
 
 class TrackListItem extends StatelessWidget {
   final Track track;
+  final String authorName;
   final bool isFavorite;
   final VoidCallback? onToggleFavorite;
   final VoidCallback onTap;
@@ -13,6 +14,7 @@ class TrackListItem extends StatelessWidget {
   const TrackListItem({
     super.key,
     required this.track,
+    required this.authorName,
     required this.isFavorite,
     this.onToggleFavorite,
     required this.onTap,
@@ -126,7 +128,7 @@ class TrackListItem extends StatelessWidget {
               ? Image.network(track.imageUrl, width: 50, height: 50)
               : const Icon(Icons.music_note),
       title: Text(track.name),
-      subtitle: Text(track.artistName ?? 'Unknown Artist'),
+      subtitle: Text(authorName),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
